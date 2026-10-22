@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "react",
+    "typescript",
+    "jsx-a11y",
+    "vitest"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowExportNames": [
+          "useApi",
+          "useToast"
+        ]
+      }
+    ],
+    "react/react-in-jsx-scope": "off"
+  },
+  "ignorePatterns": [
+    "src/gql/**",
+    "dist/**",
+    "playwright-report/**",
+    "test-results/**"
+  ]
+}

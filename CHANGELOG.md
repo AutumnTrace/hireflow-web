@@ -1,0 +1,28 @@
+# Changelog
+
+All notable changes to this project are documented here.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+## [1.0.0] - 2026-10-22
+
+First release, built against [HireFlow API v1.1.1](https://github.com/AutumnTrace/hireflow/releases/tag/v1.1.1).
+
+### Added
+
+- Job board with search, work-mode/status filters and cursor pagination
+- Job detail page with stat tiles, a "where applicants are now" bar chart and a live activity feed
+- Drag-and-drop **pipeline board** (dnd-kit) that highlights valid target columns, plus an accessible "Move to…" menu on every card
+- Typed API errors (e.g. `InvalidStageTransitionError`) shown to the user when a move is rejected
+- Live updates over GraphQL subscriptions (`graphql-ws`)
+- Candidate list and profiles with skill-match meters, stage history and recommended jobs
+- Interview agenda and recent feedback
+- **Two data sources:** Live API (signs in through the dev token endpoint) or Demo mode, which runs the HireFlow schema in the browser
+- End-to-end typed GraphQL documents generated from the API schema (GraphQL Code Generator)
+- Light/dark/system theme
+- Vitest + Testing Library unit tests, Playwright end-to-end tests (desktop and mobile)
+- CI and automatic deployment of the demo to GitHub Pages
+
+[Unreleased]: https://github.com/AutumnTrace/hireflow-web/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/AutumnTrace/hireflow-web/releases/tag/v1.0.0
