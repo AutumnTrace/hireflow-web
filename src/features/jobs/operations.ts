@@ -44,6 +44,7 @@ export const JobDetailQuery = graphql(`
       workMode
       employmentType
       status
+      publishedAt
       requiredSkills
       salary {
         min
@@ -75,6 +76,11 @@ export const JobDetailQuery = graphql(`
         }
         skillMatch {
           score
+          matchedSkills
+        }
+        interviews {
+          kind
+          scheduledAt
         }
       }
     }

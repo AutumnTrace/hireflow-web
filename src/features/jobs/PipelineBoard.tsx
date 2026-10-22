@@ -11,12 +11,14 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core'
 import clsx from 'clsx'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { Avatar } from '../../components/ui'
-import type { ApplicationStage } from '../../gql/graphql'
-import { formatPercent, timeAgo } from '../../lib/format'
-import { STAGES, STAGE_LABEL, canMove } from '../../lib/stages'
+import { Chip } from '../../components/ui'
+import type { ApplicationStage, InterviewKind } from '../../gql/graphql'
+import { formatPercent } from '../../lib/format'
+import { rise } from '../../lib/motion'
+import { EXIT_STAGES, STAGES, STAGE_LABEL, canMove } from '../../lib/stages'
+import { daysInStage } from './pipeline'
 
 export interface BoardApplication {
   id: string
@@ -24,7 +26,8 @@ export interface BoardApplication {
   updatedAt: string
   allowedNextStages: ApplicationStage[]
   candidate: { id: string; fullName: string; headline?: string | null }
-  skillMatch: { score: number }
+  skillMatch: { score: number; matchedSkills?: string[] }
+  interviews?: { kind: InterviewKind; scheduledAt: string }[]
 }
 
 export interface PipelineBoardProps {
@@ -32,9 +35,28 @@ export interface PipelineBoardProps {
   /** Called for every drop or menu choice. The board does not validate; the API is the source of truth. */
   onMove: (application: BoardApplication, stage: ApplicationStage) => void
   pendingIds?: ReadonlySet<string>
+  /** Active applications untouched for longer than this are flagged as stalled. */
+  staleDays?: number
+  now?: Date
 }
 
-export function PipelineBoard({ applications, onMove, pendingIds }: PipelineBoardProps) {
+const INTERVIEW_SHORT: Record<InterviewKind, string> = {
+  PHONE_SCREEN: 'Call',
+  TECHNICAL: 'Tech round',
+  SYSTEM_DESIGN: 'Design round',
+  BEHAVIORAL: 'Culture fit',
+  ONSITE: 'Onsite',
+}
+
+function nextInterview(application: BoardApplication, now: Date) {
+  return application.interviews
+    ?.filter((i) => new Date(i.scheduledAt) > now)
+    .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt))[0]
+}
+
+export function PipelineBoard({ applications, onMove, pendingIds, staleDays = 7, now: nowProp }: PipelineBoardProps) {
+  // Captured once per mount so "days in stage" is stable across re-renders.
+  const [now] = useState(() => nowProp ?? new Date())
   const [active, setActive] = useState<BoardApplication | null>(null)
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -55,8 +77,8 @@ export function PipelineBoard({ applications, onMove, pendingIds }: PipelineBoar
 
   return (
     <DndContext sensors={sensors} onDragStart={handleStart} onDragEnd={handleEnd} onDragCancel={() => setActive(null)}>
-      <div className="-mx-4 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
-        <div className="grid min-w-[66rem] grid-cols-[repeat(4,minmax(10.5rem,1fr))_repeat(3,minmax(8.5rem,0.8fr))] gap-3">
+      <div className="-mx-4 overflow-x-auto px-4 pt-1 pb-3 md:mx-0 md:px-0">
+        <div className="grid min-w-[72rem] grid-cols-[repeat(5,minmax(10.5rem,1fr))_repeat(2,minmax(7.25rem,0.7fr))] gap-x-4">
           {STAGES.map((stage) => (
             <Column
               key={stage}
@@ -65,11 +87,15 @@ export function PipelineBoard({ applications, onMove, pendingIds }: PipelineBoar
               applications={applications.filter((a) => a.stage === stage)}
               onMove={onMove}
               pendingIds={pendingIds}
+              staleDays={staleDays}
+              now={now}
             />
           ))}
         </div>
       </div>
-      <DragOverlay dropAnimation={null}>{active && <CardBody application={active} lifted />}</DragOverlay>
+      <DragOverlay dropAnimation={null}>
+        {active && <CardBody application={active} lifted staleDays={staleDays} now={now} />}
+      </DragOverlay>
     </DndContext>
   )
 }
@@ -80,16 +106,21 @@ function Column({
   dragging,
   onMove,
   pendingIds,
+  staleDays,
+  now,
 }: {
   stage: ApplicationStage
   applications: BoardApplication[]
   dragging: BoardApplication | null
   onMove: PipelineBoardProps['onMove']
   pendingIds?: ReadonlySet<string>
+  staleDays: number
+  now: Date
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage })
   const isSource = dragging?.stage === stage
   const isAllowed = dragging ? canMove(dragging.allowedNextStages, stage) : false
+  const isExit = EXIT_STAGES.includes(stage)
 
   return (
     <section
@@ -97,79 +128,164 @@ function Column({
       aria-label={`${STAGE_LABEL[stage]} column, ${applications.length} applicant${applications.length === 1 ? '' : 's'}`}
       data-stage={stage}
       className={clsx(
-        'flex min-h-48 flex-col rounded-xl border-2 p-2 transition-colors',
-        !dragging && 'border-transparent bg-muted/60',
-        dragging && isSource && 'border-transparent bg-muted/60',
-        dragging && isAllowed && (isOver ? 'border-accent bg-accent-soft' : 'border-dashed border-accent/60 bg-accent-soft/40'),
-        dragging && !isAllowed && !isSource && (isOver ? 'border-rose-400 bg-rose-50 dark:bg-rose-950/40' : 'border-transparent bg-muted/30 opacity-60'),
+        'flex min-h-56 flex-col outline-offset-4 transition-[background-color,outline-color,opacity] duration-150',
+        dragging && isAllowed && (isOver ? 'bg-accent-soft outline-2 outline-accent' : 'bg-accent-soft/50 outline-1 outline-dashed outline-accent/70'),
+        dragging && !isAllowed && !isSource && (isOver ? 'bg-rose-500/10 outline-2 outline-rose-400' : 'opacity-45'),
       )}
     >
-      <header className="mb-2 flex items-center justify-between px-1">
-        <h3 className="text-xs font-semibold tracking-wide text-ink-2 uppercase">{STAGE_LABEL[stage]}</h3>
-        <span className="rounded-full bg-surface px-2 text-xs tabular-nums text-ink-2">{applications.length}</span>
+      <header className={clsx('mb-4 flex items-baseline gap-2 border-b pb-2', isExit ? 'border-line' : 'border-rule')}>
+        <h3 className={clsx('label-caps', isExit ? 'text-ink-3' : 'text-ink')}>{STAGE_LABEL[stage]}</h3>
+        <span className="font-display text-sm text-ink-3 tabular-nums">{applications.length}</span>
       </header>
-      <ul className="flex flex-1 flex-col gap-2">
-        {applications.map((application) => (
-          <DraggableCard key={application.id} application={application} onMove={onMove} pending={pendingIds?.has(application.id) ?? false} />
+      <ul className="flex flex-1 flex-col gap-3">
+        {applications.map((application, i) => (
+          <DraggableCard
+            key={application.id}
+            index={i}
+            application={application}
+            onMove={onMove}
+            pending={pendingIds?.has(application.id) ?? false}
+            staleDays={staleDays}
+            now={now}
+          />
         ))}
       </ul>
     </section>
   )
 }
 
-function DraggableCard({ application, onMove, pending }: { application: BoardApplication; onMove: PipelineBoardProps['onMove']; pending: boolean }) {
+function DraggableCard({
+  application,
+  onMove,
+  pending,
+  index,
+  staleDays,
+  now,
+}: {
+  application: BoardApplication
+  onMove: PipelineBoardProps['onMove']
+  pending: boolean
+  index: number
+  staleDays: number
+  now: Date
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: application.id })
+  const entrance = rise(index)
 
   return (
-    <li ref={setNodeRef} className={clsx(isDragging && 'opacity-30')} data-testid={`application-${application.id}`}>
-      <div {...listeners} {...attributes} aria-roledescription="draggable application" aria-label={`${application.candidate.fullName}, ${STAGE_LABEL[application.stage]}`} className="cursor-grab rounded-lg focus-visible:outline-2 focus-visible:outline-accent active:cursor-grabbing">
-        <CardBody application={application} pending={pending} />
+    <li ref={setNodeRef} className={clsx(entrance.className, isDragging && 'opacity-30')} style={entrance.style} data-testid={`application-${application.id}`}>
+      <div
+        {...listeners}
+        {...attributes}
+        aria-roledescription="draggable application"
+        aria-label={`${application.candidate.fullName}, ${STAGE_LABEL[application.stage]}`}
+        className="cursor-grab focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent active:cursor-grabbing"
+      >
+        <CardBody application={application} pending={pending} staleDays={staleDays} now={now}>
+          {application.allowedNextStages.length > 0 && (
+            <label>
+              <span className="sr-only">Move {application.candidate.fullName} to</span>
+              <select
+                value=""
+                disabled={pending}
+                onChange={(e) => e.target.value && onMove(application, e.target.value as ApplicationStage)}
+                // Keep pointer/keyboard input on the menu from starting a drag of the card.
+                onPointerDown={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                className="label-caps cursor-pointer appearance-none rounded-sm border border-transparent bg-transparent px-1 py-0.5 text-[0.7rem] text-ink-3 hover:border-line hover:text-ink focus:border-accent"
+              >
+                <option value="">Move ▾</option>
+                {application.allowedNextStages.map((stage) => (
+                  <option key={stage} value={stage}>{STAGE_LABEL[stage]}</option>
+                ))}
+              </select>
+            </label>
+          )}
+        </CardBody>
       </div>
-      {application.allowedNextStages.length > 0 && (
-        <label className="mt-1 block">
-          <span className="sr-only">Move {application.candidate.fullName} to</span>
-          <select
-            value=""
-            disabled={pending}
-            onChange={(e) => e.target.value && onMove(application, e.target.value as ApplicationStage)}
-            className="w-full rounded-md border border-line bg-surface px-2 py-1 text-xs text-ink-2"
-          >
-            <option value="">Move to…</option>
-            {application.allowedNextStages.map((stage) => (
-              <option key={stage} value={stage}>{STAGE_LABEL[stage]}</option>
-            ))}
-          </select>
-        </label>
-      )}
     </li>
   )
 }
 
-function CardBody({ application, lifted, pending }: { application: BoardApplication; lifted?: boolean; pending?: boolean }) {
+function CardBody({
+  application,
+  lifted,
+  pending,
+  staleDays,
+  now,
+  children,
+}: {
+  application: BoardApplication
+  lifted?: boolean
+  pending?: boolean
+  staleDays: number
+  now: Date
+  children?: ReactNode
+}) {
   const score = application.skillMatch.score
+  const filled = Math.round(score * 5)
+  const days = daysInStage(application.updatedAt, now)
+  const isActive = application.allowedNextStages.length > 0 || pending
+  const stalled = isActive && application.stage !== 'HIRED' && days > staleDays
+  const interview = nextInterview(application, now)
+  const skills = (application.skillMatch.matchedSkills ?? []).slice(0, interview ? 1 : 2)
+
   return (
     <div
       className={clsx(
-        'rounded-lg border border-line bg-surface p-2.5 text-left',
-        lifted ? 'rotate-2 shadow-xl' : 'shadow-sm',
+        'corner-marks border bg-surface p-3.5 text-left transition-[transform,box-shadow,border-color,background-color] duration-200',
+        lifted
+          ? 'rotate-1 border-accent bg-raised shadow-[0_18px_40px_-16px_rgba(29,42,58,0.55)]'
+          : 'border-line hover:-translate-y-0.5 hover:border-accent hover:bg-raised hover:shadow-[0_10px_24px_-14px_rgba(29,42,58,0.45)]',
         pending && 'animate-pulse',
       )}
     >
-      <div className="flex items-center gap-2">
-        <Avatar name={application.candidate.fullName} size="sm" />
+      <div className="flex items-start justify-between gap-2">
         <Link
           to={`/candidates/${application.candidate.id}`}
           onPointerDown={(e) => e.stopPropagation()}
-          className="min-w-0 truncate text-sm font-medium text-ink hover:text-accent hover:underline"
+          className="min-w-0 truncate font-display text-xl leading-tight font-semibold text-ink hover:text-accent"
         >
           {application.candidate.fullName}
         </Link>
-      </div>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2 text-xs text-ink-3">
-        <span title="Share of required skills this candidate has" className="whitespace-nowrap">
-          <span className="font-medium text-ink-2">{formatPercent(score)}</span> match
+        <span className="font-display text-xl leading-tight font-semibold text-accent tabular-nums" title="Share of the job's required skills this candidate has">
+          {formatPercent(score)}
         </span>
-        <span className="whitespace-nowrap">{timeAgo(application.updatedAt)}</span>
+      </div>
+      {application.candidate.headline && <p className="truncate text-xs text-ink-3">{application.candidate.headline}</p>}
+
+      <div className="mt-3 grid grid-cols-5 gap-1" aria-hidden>
+        {Array.from({ length: 5 }, (_, i) => (
+          <span key={i} className={clsx('h-[3px]', i < filled ? 'bg-accent' : 'bg-line')} />
+        ))}
+      </div>
+      <span className="sr-only">{formatPercent(score)} skill match</span>
+
+      {(interview || skills.length > 0) && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {skills.map((s) => <Chip key={s}>{s}</Chip>)}
+          {interview && (
+            <Chip tone="accent">
+              {INTERVIEW_SHORT[interview.kind]}{' '}
+              {new Intl.DateTimeFormat('en', { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(interview.scheduledAt))}
+            </Chip>
+          )}
+        </div>
+      )}
+
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <span
+          title={`${days} day${days === 1 ? '' : 's'} in this stage`}
+          className={clsx('label-caps flex min-w-0 items-center gap-1.5 text-[0.7rem] whitespace-nowrap', stalled ? 'text-accent-ink' : 'text-ink-3')}
+        >
+          <span aria-hidden className={clsx('size-1.5', stalled ? 'bg-accent' : 'bg-mark')} />
+          {application.stage === 'HIRED'
+            ? 'Hired'
+            : EXIT_STAGES.includes(application.stage)
+              ? STAGE_LABEL[application.stage]
+              : `${days} day${days === 1 ? '' : 's'}${stalled ? ' · stalled' : ''}`}
+        </span>
+        {children}
       </div>
     </div>
   )
