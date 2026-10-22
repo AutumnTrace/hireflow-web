@@ -12,7 +12,7 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178c6?logo=typescript&logoColor=white)
 ![GraphQL](https://img.shields.io/badge/GraphQL-urql%20%2B%20codegen-E10098?logo=graphql&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-25%20unit%20%C2%B7%2012%20e2e-brightgreen)
+![Tests](https://img.shields.io/badge/tests-29%20unit%20%C2%B7%2012%20e2e-brightgreen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ### [▶ Try the live demo](https://autumntrace.github.io/hireflow-web/)
@@ -22,7 +22,7 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
 </div>
 
 <p align="center">
-  <img src="docs/screenshots/pipeline-light.png" alt="Job detail page with applicant stats, a bar chart of applicants per stage, a live activity feed and a seven-column pipeline board" width="100%">
+  <img src="docs/screenshots/pipeline-light.png" alt="Job detail page: navy masthead with a condensed title and numbered stage counters, above a seven-column pipeline board of candidate cards with blueprint corner marks" width="100%">
 </p>
 
 ---
@@ -31,19 +31,21 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
 
 | | |
 |---|---|
+| 🎨 **Industrial design language** | Navy masthead, condensed Barlow display type, hairline rules, blueprint corner marks and staggered entrance motion (reduced-motion aware), all from semantic tokens with a hand-tuned dark theme. |
 | 🗂️ **Drag-and-drop pipeline** | Move candidates between stages with [dnd-kit](https://dndkit.com). Valid target columns light up while you drag; invalid ones dim. |
 | 🧯 **Server-driven rules** | The board doesn't hard-code the hiring rules. Each card carries `allowedNextStages` from the API, and an illegal drop shows the API's own typed `InvalidStageTransitionError`. |
 | 📡 **Live updates** | A GraphQL **subscription** over `graphql-ws` pushes stage changes; open two tabs and watch one update the other. |
 | 🔒 **End-to-end types** | Every query is checked against the API's `schema.graphql` at build time, and the results are fully typed. CI fails if the generated types drift. |
-| 🎯 **Skill matching** | Candidate profiles show skill-match meters per application and ranked job recommendations from the API. |
+| 🎯 **Skill matching** | Cards and profiles show 5-segment skill-match meters, matched/missing skills and ranked job recommendations from the API. |
+| ⏱️ **Pipeline health** | Numbered stage counters with stage-to-stage conversion, days-in-stage on every card, and a *stalled* flag for applications untouched for over a week. |
 | 🧪 **Demo mode** | The real HireFlow schema executes **in the browser** against sample data, so the public demo works without a backend while using the same operations, paging, filtering and errors. |
 | ♿ **Accessible** | Every drag has a keyboard/menu alternative; columns, meters and charts carry labels and a screen-reader table. |
 | 🌗 **Light & dark** | Semantic colour tokens with a system/light/dark toggle. |
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/drag-dark.png" alt="Dark mode: dragging a card; allowed columns are outlined, the hovered invalid column is red"></td>
-    <td width="50%"><img src="docs/screenshots/candidate.png" alt="Candidate profile with skill-match bars, matched and missing skills, stage history and recommended jobs"></td>
+    <td width="50%"><img src="docs/screenshots/drag-dark.png" alt="Dark mode: dragging a card; allowed columns get a dashed outline, the hovered invalid column turns red, other columns dim"></td>
+    <td width="50%"><img src="docs/screenshots/candidate.png" alt="Candidate profile: masthead with name and skills, application card with a segmented skill-match bar, stage history, and recommended jobs"></td>
   </tr>
   <tr>
     <td align="center"><sub>Dragging: allowed stages are outlined, the invalid target turns red</sub></td>
@@ -119,7 +121,7 @@ src/
 ├── api/              # Data source settings, live urql client (HTTP + graphql-ws), dev sign-in
 ├── demo/             # In-browser HireFlow: dataset, executable schema, filter/sort/paging interpreter
 ├── features/
-│   ├── jobs/         # Job board, job detail, pipeline board, chart, live activity feed
+│   ├── jobs/         # Job board, job detail, stage strip, pipeline board, live activity feed
 │   ├── candidates/   # Candidate list, profile, skill-match meter
 │   └── interviews/   # Agenda and recent feedback
 ├── components/       # Layout, settings dialog, toasts, UI primitives

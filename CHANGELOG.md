@@ -5,6 +5,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-22
+
+### Changed
+
+- **New visual design** ("Industry"): full-width navy masthead with condensed uppercase titles, Barlow / Barlow Condensed type (bundled via Fontsource), steel-blue accent, hairline rules and blueprint corner marks. Light and dark themes were retuned from the same tokens.
+- Top navigation replaces the sidebar. Filters and search moved into the masthead.
+- Job detail: numbered stage counters with stage-to-stage conversion replace the bar chart. Board cards show a 5-segment skill-match bar, matched skills, the next interview and days in stage.
+- Stage badges use the steel palette, with the stage name always shown as text.
+
+### Added
+
+- *Stalled* flag on cards untouched for more than 7 days
+- Staggered entrance and hover-lift motion, disabled under `prefers-reduced-motion`
+
 ## [1.0.0] - 2026-10-22
 
 First release, built against [HireFlow API v1.1.1](https://github.com/AutumnTrace/hireflow/releases/tag/v1.1.1).
@@ -24,5 +38,6 @@ First release, built against [HireFlow API v1.1.1](https://github.com/AutumnTrac
 - Vitest + Testing Library unit tests, Playwright end-to-end tests (desktop and mobile)
 - CI and automatic deployment of the demo to GitHub Pages
 
-[Unreleased]: https://github.com/AutumnTrace/hireflow-web/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/AutumnTrace/hireflow-web/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/AutumnTrace/hireflow-web/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/AutumnTrace/hireflow-web/releases/tag/v1.0.0
