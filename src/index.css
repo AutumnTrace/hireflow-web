@@ -1,0 +1,76 @@
+@import 'tailwindcss';
+
+/* Semantic tokens: components use these, never raw palette values, so dark mode is one swap. */
+@theme {
+  --color-canvas: #f6f6f4;
+  --color-surface: #fcfcfb;
+  --color-muted: #efeeea;
+  --color-line: #e2e1dc;
+  --color-ink: #0b0b0b;
+  --color-ink-2: #52514e;
+  --color-ink-3: #77766f;
+  --color-accent: #2a78d6;
+  --color-accent-strong: #1f63b8;
+  --color-accent-soft: #e3eefb;
+  --color-accent-ink: #174c8c;
+  /* Chart roles (dataviz reference palette, series slot 1 + neutral) */
+  --color-series-1: #2a78d6;
+  --color-series-neutral: #a3a29b;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) {
+    color-scheme: dark;
+    --color-canvas: #111110;
+    --color-surface: #1a1a19;
+    --color-muted: #262624;
+    --color-line: #34332f;
+    --color-ink: #f0efec;
+    --color-ink-2: #c3c2b7;
+    --color-ink-3: #93928a;
+    --color-accent: #3987e5;
+    --color-accent-strong: #5a9bea;
+    --color-accent-soft: #17304f;
+    --color-accent-ink: #b9d4f6;
+    --color-series-1: #3987e5;
+    --color-series-neutral: #6b6a64;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-canvas: #111110;
+  --color-surface: #1a1a19;
+  --color-muted: #262624;
+  --color-line: #34332f;
+  --color-ink: #f0efec;
+  --color-ink-2: #c3c2b7;
+  --color-ink-3: #93928a;
+  --color-accent: #3987e5;
+  --color-accent-strong: #5a9bea;
+  --color-accent-soft: #17304f;
+  --color-accent-ink: #b9d4f6;
+  --color-series-1: #3987e5;
+  --color-series-neutral: #6b6a64;
+}
+
+/* Tailwind's dark: variant follows the same toggle as the tokens above. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme='light']) *) {
+      @slot;
+    }
+  }
+  &:where([data-theme='dark'] *) {
+    @slot;
+  }
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
