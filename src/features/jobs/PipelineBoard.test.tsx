@@ -44,7 +44,7 @@ describe('PipelineBoard', () => {
     renderBoard()
 
     const menu = screen.getByRole('combobox', { name: 'Move Ana Popescu to' })
-    expect(within(menu).getAllByRole('option').map((o) => o.textContent)).toEqual(['Move to…', 'Screening', 'Rejected', 'Withdrawn'])
+    expect(within(menu).getAllByRole('option').map((o) => o.textContent)).toEqual(['Move ▾', 'Screening', 'Rejected', 'Withdrawn'])
   })
 
   it('hides the move menu for applications in a final stage', () => {
