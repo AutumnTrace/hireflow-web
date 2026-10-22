@@ -1,59 +1,106 @@
+@import '@fontsource/barlow/400.css';
+@import '@fontsource/barlow/500.css';
+@import '@fontsource/barlow/600.css';
+@import '@fontsource/barlow-condensed/500.css';
+@import '@fontsource/barlow-condensed/600.css';
+@import '@fontsource/barlow-condensed/700.css';
 @import 'tailwindcss';
 
-/* Semantic tokens: components use these, never raw palette values, so dark mode is one swap. */
+/*
+ * "Industry" design language: navy masthead, steel-blue accent, condensed uppercase display type,
+ * hairline rules and blueprint corner marks. Components use these semantic tokens only, so the
+ * dark theme is a single swap.
+ */
 @theme {
-  --color-canvas: #f6f6f4;
-  --color-surface: #fcfcfb;
-  --color-muted: #efeeea;
-  --color-line: #e2e1dc;
-  --color-ink: #0b0b0b;
-  --color-ink-2: #52514e;
-  --color-ink-3: #77766f;
-  --color-accent: #2a78d6;
-  --color-accent-strong: #1f63b8;
-  --color-accent-soft: #e3eefb;
-  --color-accent-ink: #174c8c;
-  /* Chart roles (dataviz reference palette, series slot 1 + neutral) */
-  --color-series-1: #2a78d6;
+  --color-canvas: #efefed;
+  --color-surface: #f6f6f5;
+  --color-raised: #ffffff;
+  --color-muted: #e7e8e8;
+  --color-line: #d2d5d9;
+  --color-rule: #1d2a3a;
+  --color-mark: #8a9099;
+  --color-ink: #16191d;
+  --color-ink-2: #4a5058;
+  --color-ink-3: #7b8089;
+  --color-accent: #4f75a3;
+  --color-accent-strong: #3d5f88;
+  --color-accent-soft: #e4ecf6;
+  --color-accent-ink: #2f557f;
+
+  /* Masthead (always dark, in both themes) */
+  --color-mast: #1d2a3a;
+  --color-mast-2: #243346;
+  --color-mast-line: #34465c;
+  --color-mast-ink: #eef1f4;
+  --color-mast-muted: #8fa6c2;
+
+  /* Chart/meter roles */
+  --color-series-1: #4f75a3;
   --color-series-neutral: #a3a29b;
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Barlow', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Barlow Condensed', 'Barlow', ui-sans-serif, system-ui, sans-serif;
+
+  --animate-rise: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme='light'])) {
     color-scheme: dark;
-    --color-canvas: #111110;
-    --color-surface: #1a1a19;
-    --color-muted: #262624;
-    --color-line: #34332f;
-    --color-ink: #f0efec;
-    --color-ink-2: #c3c2b7;
-    --color-ink-3: #93928a;
-    --color-accent: #3987e5;
-    --color-accent-strong: #5a9bea;
-    --color-accent-soft: #17304f;
-    --color-accent-ink: #b9d4f6;
-    --color-series-1: #3987e5;
-    --color-series-neutral: #6b6a64;
+    --color-canvas: #11151b;
+    --color-surface: #182029;
+    --color-raised: #1e2833;
+    --color-muted: #222c38;
+    --color-line: #2e3a48;
+    --color-rule: #8fa6c2;
+    --color-mark: #5d6b7c;
+    --color-ink: #e8ebef;
+    --color-ink-2: #aab3be;
+    --color-ink-3: #7f8a97;
+    --color-accent: #7f9fc6;
+    --color-accent-strong: #a3bcdb;
+    --color-accent-soft: #1f2f43;
+    --color-accent-ink: #b9cde6;
+    --color-mast: #0e151e;
+    --color-mast-2: #142030;
+    --color-mast-line: #263547;
+    --color-series-1: #7f9fc6;
+    --color-series-neutral: #5f6873;
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-canvas: #111110;
-  --color-surface: #1a1a19;
-  --color-muted: #262624;
-  --color-line: #34332f;
-  --color-ink: #f0efec;
-  --color-ink-2: #c3c2b7;
-  --color-ink-3: #93928a;
-  --color-accent: #3987e5;
-  --color-accent-strong: #5a9bea;
-  --color-accent-soft: #17304f;
-  --color-accent-ink: #b9d4f6;
-  --color-series-1: #3987e5;
-  --color-series-neutral: #6b6a64;
+  --color-canvas: #11151b;
+  --color-surface: #182029;
+  --color-raised: #1e2833;
+  --color-muted: #222c38;
+  --color-line: #2e3a48;
+  --color-rule: #8fa6c2;
+  --color-mark: #5d6b7c;
+  --color-ink: #e8ebef;
+  --color-ink-2: #aab3be;
+  --color-ink-3: #7f8a97;
+  --color-accent: #7f9fc6;
+  --color-accent-strong: #a3bcdb;
+  --color-accent-soft: #1f2f43;
+  --color-accent-ink: #b9cde6;
+  --color-mast: #0e151e;
+  --color-mast-2: #142030;
+  --color-mast-line: #263547;
+  --color-series-1: #7f9fc6;
+  --color-series-neutral: #5f6873;
 }
 
 /* Tailwind's dark: variant follows the same toggle as the tokens above. */
@@ -65,6 +112,53 @@
   }
   &:where([data-theme='dark'] *) {
     @slot;
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+}
+
+/* Small uppercase label used for eyebrows, column headers and stat captions. */
+@utility label-caps {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/*
+ * Blueprint corner marks: a "+" at each corner of a framed element.
+ * Drawn with four background gradients so they cost no extra DOM.
+ */
+@utility corner-marks {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    pointer-events: none;
+    --m: var(--color-mark);
+    background:
+      linear-gradient(var(--m), var(--m)) 0 5px / 11px 1px no-repeat,
+      linear-gradient(var(--m), var(--m)) 5px 0 / 1px 11px no-repeat,
+      linear-gradient(var(--m), var(--m)) 100% 5px / 11px 1px no-repeat,
+      linear-gradient(var(--m), var(--m)) calc(100% - 5px) 0 / 1px 11px no-repeat,
+      linear-gradient(var(--m), var(--m)) 0 calc(100% - 5px) / 11px 1px no-repeat,
+      linear-gradient(var(--m), var(--m)) 5px 100% / 1px 11px no-repeat,
+      linear-gradient(var(--m), var(--m)) 100% calc(100% - 5px) / 11px 1px no-repeat,
+      linear-gradient(var(--m), var(--m)) calc(100% - 5px) 100% / 1px 11px no-repeat;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
   }
 }
 

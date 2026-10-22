@@ -31,12 +31,12 @@ export function Toaster({ children }: { children: ReactNode }) {
             key={t.id}
             role={t.tone === 'error' ? 'alert' : 'status'}
             className={clsx(
-              'pointer-events-auto w-full rounded-lg border bg-surface p-3 shadow-lg',
-              t.tone === 'error' ? 'border-rose-300 dark:border-rose-800' : 'border-line',
+              'pointer-events-auto w-full animate-rise border-l-4 bg-raised p-3 shadow-[0_12px_28px_-12px_rgba(29,42,58,0.45)]',
+              t.tone === 'error' ? 'border-rose-500' : 'border-accent',
             )}
           >
-            <p className="flex items-center gap-2 text-sm font-medium text-ink">
-              <span aria-hidden>{t.tone === 'success' ? '✅' : t.tone === 'error' ? '⛔' : 'ℹ️'}</span>
+            <p className="flex items-center gap-2 font-display text-base font-semibold text-ink">
+              <span aria-hidden className={clsx('size-2', t.tone === 'error' ? 'bg-rose-500' : 'bg-accent')} />
               {t.title}
             </p>
             {t.description && <p className="mt-1 text-sm text-ink-2">{t.description}</p>}
