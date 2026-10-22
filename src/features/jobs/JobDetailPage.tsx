@@ -2,20 +2,20 @@ import { useCallback, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { useMutation, useQuery } from 'urql'
 import { useToast } from '../../components/Toaster'
-import { Badge, Card, ErrorState, PageHeader, SkillTag, Skeleton } from '../../components/ui'
+import { Badge, Card, ErrorState, PageBody, PageHeader, SectionTitle, SkillTag, Skeleton } from '../../components/ui'
 import type { ApplicationStage } from '../../gql/graphql'
-import { EMPLOYMENT_LABEL, WORK_MODE_LABEL, formatPercent, formatSalary } from '../../lib/format'
+import { EMPLOYMENT_LABEL, WORK_MODE_LABEL, formatPercent, formatSalary, timeAgo } from '../../lib/format'
 import { ACTIVE_STAGES, STAGE_LABEL, canMove } from '../../lib/stages'
 import { ActivityFeed } from './ActivityFeed'
 import { PipelineBoard, type BoardApplication } from './PipelineBoard'
-import { PipelineChart } from './PipelineChart'
+import { StageStrip } from './StageStrip'
 import { JobDetailQuery, MoveApplicationMutation } from './operations'
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
-      <p className="text-xs text-ink-3">{label}</p>
-      <p className="mt-0.5 text-2xl font-semibold tabular-nums text-ink">{value}</p>
+      <dt className="label-caps text-ink-3">{label}</dt>
+      <dd className="mt-1 font-display text-3xl leading-none font-semibold text-ink tabular-nums">{value}</dd>
     </div>
   )
 }
@@ -60,17 +60,30 @@ export function JobDetailPage() {
 
   const handleRemoteEvent = useCallback(() => refetch({ requestPolicy: 'network-only' }), [refetch])
 
-  if (error) return <ErrorState message={error.message} onRetry={() => refetch({ requestPolicy: 'network-only' })} />
-  if (fetching && !data) {
+  if (error) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-80" />
-        <Skeleton className="h-48" />
-        <Skeleton className="h-72" />
-      </div>
+      <PageBody>
+        <ErrorState message={error.message} onRetry={() => refetch({ requestPolicy: 'network-only' })} />
+      </PageBody>
     )
   }
-  if (!job) return <ErrorState message="This job posting does not exist." />
+  if (fetching && !data) {
+    return (
+      <>
+        <div className="h-72 bg-mast" />
+        <PageBody>
+          <Skeleton className="h-72" />
+        </PageBody>
+      </>
+    )
+  }
+  if (!job) {
+    return (
+      <PageBody>
+        <ErrorState message="This job posting does not exist." />
+      </PageBody>
+    )
+  }
 
   const active = job.applications.filter((a) => ACTIVE_STAGES.includes(a.stage)).length
   const avgMatch = job.applications.length
@@ -79,45 +92,54 @@ export function JobDetailPage() {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="mb-2 text-sm text-ink-3">
-        <Link to="/jobs" className="hover:text-accent">Jobs</Link> <span aria-hidden>/</span> {job.company.name}
-      </nav>
       <PageHeader
+        eyebrow={
+          <nav aria-label="Breadcrumb">
+            <Link to="/jobs" className="hover:text-mast-ink">Jobs</Link> <span aria-hidden>/</span> {job.company.name}
+          </nav>
+        }
         title={job.title}
-        subtitle={[job.company.name, WORK_MODE_LABEL[job.workMode], EMPLOYMENT_LABEL[job.employmentType], job.location, formatSalary(job.salary)].filter(Boolean).join(' · ')}
-        actions={job.status !== 'OPEN' && <Badge>{job.status === 'DRAFT' ? 'Draft' : 'Closed'}</Badge>}
-      />
+        subtitle={
+          <>
+            {[WORK_MODE_LABEL[job.workMode], EMPLOYMENT_LABEL[job.employmentType], job.location, formatSalary(job.salary)]
+              .filter(Boolean)
+              .map((item) => <span key={item}>{item}</span>)}
+            {job.publishedAt && <span>Opened {timeAgo(job.publishedAt)}</span>}
+          </>
+        }
+        actions={job.status !== 'OPEN' && <Badge className="bg-mast-2 text-mast-ink ring-mast-line">{job.status === 'DRAFT' ? 'Draft' : 'Closed'}</Badge>}
+      >
+        <StageStrip byStage={job.pipeline.byStage} total={job.pipeline.total} />
+      </PageHeader>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr_1fr]">
-        <Card className="p-5">
-          <div className="grid grid-cols-3 gap-4">
-            <Stat label="Applicants" value={job.pipeline.total} />
-            <Stat label="In progress" value={active} />
-            <Stat label="Hire rate" value={formatPercent(job.pipeline.hireRate)} />
-          </div>
-          <p className="mt-5 text-xs text-ink-3">Required skills · avg. match {formatPercent(avgMatch)}</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {job.requiredSkills.map((skill) => <SkillTag key={skill} skill={skill} />)}
-          </div>
-          <p className="mt-5 text-sm leading-relaxed text-ink-2">{job.description}</p>
-        </Card>
+      <PageBody>
+        <section aria-labelledby="board-title">
+          <SectionTitle id="board-title" aside="Drag a card to a highlighted column, or use its Move menu.">
+            Pipeline
+          </SectionTitle>
+          <PipelineBoard applications={applications} onMove={handleMove} pendingIds={pendingIds} />
+        </section>
 
-        <Card className="p-5">
-          <PipelineChart byStage={job.pipeline.byStage} total={job.pipeline.total} />
-        </Card>
+        <div className="mt-10 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+          <section aria-labelledby="role-title">
+            <SectionTitle id="role-title">About the role</SectionTitle>
+            <Card marks className="p-6">
+              <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+                <Stat label="Applicants" value={job.pipeline.total} />
+                <Stat label="In progress" value={active} />
+                <Stat label="Hire rate" value={formatPercent(job.pipeline.hireRate)} />
+                <Stat label="Avg. match" value={formatPercent(avgMatch)} />
+              </dl>
+              <div className="mt-6 flex flex-wrap gap-1.5">
+                {job.requiredSkills.map((skill) => <SkillTag key={skill} skill={skill} />)}
+              </div>
+              <p className="mt-5 max-w-prose text-[0.95rem] leading-relaxed text-ink-2">{job.description}</p>
+            </Card>
+          </section>
 
-        <Card className="max-h-80 overflow-y-auto p-5">
           <ActivityFeed jobPostingId={job.id} onEvent={handleRemoteEvent} />
-        </Card>
-      </div>
-
-      <section className="mt-8" aria-labelledby="board-title">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id="board-title" className="text-lg font-semibold text-ink">Pipeline</h2>
-          <p className="text-sm text-ink-3">Drag a card to a highlighted column, or use its “Move to…” menu.</p>
         </div>
-        <PipelineBoard applications={applications} onMove={handleMove} pendingIds={pendingIds} />
-      </section>
+      </PageBody>
     </>
   )
 }

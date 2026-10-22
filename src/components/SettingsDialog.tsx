@@ -23,7 +23,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
   const option = (value: ApiMode, title: string, description: string) => (
     <div
       className={clsx(
-        'flex gap-3 rounded-lg border p-3',
+        'flex gap-3 rounded-sm border p-3',
         mode === value ? 'border-accent bg-accent-soft' : 'border-line hover:bg-muted',
       )}
     >
@@ -49,10 +49,10 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
       ref={dialog}
       onClose={onClose}
       aria-labelledby="settings-title"
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-xl border border-line bg-surface p-0 text-ink shadow-2xl backdrop:bg-black/40"
+      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-sm border border-line bg-surface p-0 text-ink shadow-2xl backdrop:bg-mast/60"
     >
       <form onSubmit={submit} className="space-y-4 p-6">
-        <h2 id="settings-title" className="text-lg font-semibold">Data source</h2>
+        <h2 id="settings-title" className="font-display text-2xl font-semibold uppercase">Data source</h2>
         <fieldset className="space-y-2">
           <legend className="sr-only">Mode</legend>
           {option('demo', 'Demo data', 'Runs the HireFlow schema in your browser with sample data. Nothing to install.')}
@@ -67,7 +67,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
               value={apiUrl}
               onChange={(e) => setApiUrl(e.target.value)}
               placeholder="Leave empty to use the Vite dev proxy"
-              className="mt-1 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-sm focus:outline-2 focus:outline-accent"
+              className="mt-1 w-full rounded-sm border border-line bg-canvas px-3 py-2 text-sm focus:outline-2 focus:outline-accent"
             />
             <span className="mt-1 block text-xs text-ink-3">
               e.g. <code>http://localhost:5230</code>. The API must list this site in <code>Cors:AllowedOrigins</code>.

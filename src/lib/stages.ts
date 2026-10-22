@@ -25,15 +25,17 @@ export const STAGE_LABEL: Record<ApplicationStage, string> = {
   WITHDRAWN: 'Withdrawn',
 }
 
-/** Badge styling per stage. Always paired with the text label, never colour alone. */
+/** Badge styling per stage, in the steel palette. Always paired with the text label, never colour alone. */
+const IN_PROGRESS = 'bg-accent-soft text-accent-ink ring-accent/30'
+const CLOSED = 'bg-muted text-ink-3 ring-line'
 export const STAGE_BADGE: Record<ApplicationStage, string> = {
-  APPLIED: 'bg-slate-100 text-slate-700 ring-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-600',
-  SCREENING: 'bg-sky-50 text-sky-800 ring-sky-300 dark:bg-sky-950 dark:text-sky-200 dark:ring-sky-800',
-  INTERVIEW: 'bg-violet-50 text-violet-800 ring-violet-300 dark:bg-violet-950 dark:text-violet-200 dark:ring-violet-800',
-  OFFER: 'bg-amber-50 text-amber-900 ring-amber-300 dark:bg-amber-950 dark:text-amber-200 dark:ring-amber-800',
-  HIRED: 'bg-emerald-50 text-emerald-800 ring-emerald-300 dark:bg-emerald-950 dark:text-emerald-200 dark:ring-emerald-800',
-  REJECTED: 'bg-rose-50 text-rose-800 ring-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:ring-rose-800',
-  WITHDRAWN: 'bg-zinc-100 text-zinc-600 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-600',
+  APPLIED: IN_PROGRESS,
+  SCREENING: IN_PROGRESS,
+  INTERVIEW: IN_PROGRESS,
+  OFFER: IN_PROGRESS,
+  HIRED: 'bg-accent text-white ring-accent',
+  REJECTED: CLOSED,
+  WITHDRAWN: CLOSED,
 }
 
 /**

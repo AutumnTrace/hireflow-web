@@ -33,7 +33,7 @@ test('moving a candidate updates the board, the chart and the live feed', async 
   await expect(column(page, 'APPLIED')).toHaveAttribute('aria-label', 'Applied column, 1 applicant')
   await expect(page.getByRole('region', { name: 'Live activity' }).or(page.locator('[aria-labelledby="activity-title"]')))
     .toContainText('Radu Stoica moved from Applied to Screening')
-  await expect(page.getByRole('table', { name: 'Applicants per stage' })).toContainText('Screening2')
+  await expect(page.locator('[data-funnel-stage="SCREENING"] dd').first()).toHaveText('2')
 })
 
 test('dragging to an allowed column moves the card', async ({ page }) => {

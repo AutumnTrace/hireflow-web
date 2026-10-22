@@ -230,7 +230,7 @@ export function createDemoStore(now: Date = new Date()): DemoStore {
   apply(frontend, alex, 'APPLIED', 1)
 
   apply(dataEng, elena, 'HIRED', 28, { OFFER: 'Offer sent: 62k EUR', HIRED: 'Starts on the 1st' })
-  apply(dataEng, pavel, 'SCREENING', 4)
+  apply(dataEng, pavel, 'SCREENING', 24) // untouched for ~12 days: shows the "stalled" state
 
   apply(qa, sofia, 'SCREENING', 3)
   apply(intern, mihai, 'APPLIED', 6)
