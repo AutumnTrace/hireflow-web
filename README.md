@@ -22,7 +22,7 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
 </div>
 
 <p align="center">
-  <img src="docs/screenshots/pipeline-light.png" alt="Job detail page: navy masthead with a condensed title and numbered stage counters, above a seven-column pipeline board of candidate cards with blueprint corner marks" width="100%">
+  <img src="docs/screenshots/v1.1-pipeline.png" alt="Job detail page: navy masthead with a condensed title and numbered stage counters, above a seven-column pipeline board of candidate cards with blueprint corner marks" width="100%">
 </p>
 
 ---
@@ -44,12 +44,20 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/drag-dark.png" alt="Dark mode: dragging a card; allowed columns get a dashed outline, the hovered invalid column turns red, other columns dim"></td>
-    <td width="50%"><img src="docs/screenshots/candidate.png" alt="Candidate profile: masthead with name and skills, application card with a segmented skill-match bar, stage history, and recommended jobs"></td>
+    <td width="50%"><img src="docs/screenshots/v1.1-drag-dark.png" alt="Dark mode: dragging a card; allowed columns get a dashed outline, the hovered invalid column turns red, other columns dim"></td>
+    <td width="50%"><img src="docs/screenshots/v1.1-candidate.png" alt="Candidate profile: masthead with name and skills, application card with a segmented skill-match bar, stage history, and recommended jobs"></td>
   </tr>
   <tr>
     <td align="center"><sub>Dragging: allowed stages are outlined, the invalid target turns red</sub></td>
     <td align="center"><sub>Candidate profile: skill match, history, recommendations</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/v1.1-job-board.png" alt="Job board: navy masthead with search and work-mode toggles above a grid of corner-marked job cards"></td>
+    <td width="50%"><img src="docs/screenshots/v1.1-interviews.png" alt="Interviews: agenda with date blocks on the left, recent feedback with segmented ratings on the right"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Job board: search and filters in the masthead, cursor pagination</sub></td>
+    <td align="center"><sub>Interview agenda and recent feedback</sub></td>
   </tr>
 </table>
 
