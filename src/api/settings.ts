@@ -4,6 +4,8 @@ export interface ApiSettings {
   mode: ApiMode
   /** Base URL of a HireFlow API, e.g. https://api.example.com. Empty means same origin (Vite dev proxy). */
   apiUrl: string
+  /** Base URL of a HireFlow Copilot API, used in live mode. Demo mode replays recorded answers instead. */
+  copilotUrl: string
 }
 
 const STORAGE_KEY = 'hireflow.settings'
@@ -11,6 +13,7 @@ const STORAGE_KEY = 'hireflow.settings'
 export const DEFAULT_SETTINGS: ApiSettings = {
   mode: import.meta.env.VITE_DEFAULT_MODE === 'live' ? 'live' : 'demo',
   apiUrl: import.meta.env.VITE_API_URL ?? '',
+  copilotUrl: import.meta.env.VITE_COPILOT_URL ?? 'http://localhost:8000',
 }
 
 export function loadSettings(): ApiSettings {

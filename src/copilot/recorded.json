@@ -1,0 +1,369 @@
+{
+  "recordedAt": "2026-10-24T10:46:11+00:00",
+  "model": "claude-opus-5-5",
+  "items": [
+    {
+      "id": "shortlist",
+      "endpoint": "agent",
+      "question": "Who are the strongest candidates for the Senior .NET Engineer role, and why?",
+      "response": {
+        "answer": "The Senior .NET Engineer role at Northwind Labs has 7 applications. These are the strongest:\n\n1. **Daria Munteanu (Offer stage), clearly the strongest.** She's the only candidate with a 100% skill match: C#, .NET, GraphQL, PostgreSQL[1]. Both of her interviews were rated 5/5. The phone screen with Irina Balan noted \"Clear, structured answers\"[1], and the system design interview with Victor Moraru said she \"designed a federated schema unprompted.\"[1] An offer of 58k EUR was sent on 2026-10-18.[1]\n\n2. **Cristina Melnic (Interview stage).** She has the second-best match: 75%, with C#, .NET and GraphQL but no PostgreSQL[2]. She has no interview feedback yet. Her technical interview with Victor Moraru is on 2026-10-26[2].\n\n3. **Ana Popescu (Interview stage).** She has a 50% match: C# and .NET, but no GraphQL or PostgreSQL[3]. However, she has good early feedback. Her phone screen with Irina Balan was rated 4/5: \"Solid fundamentals.\"[3] Her technical interview with Victor Moraru is tomorrow, 2026-10-25[3].\n\n**The rest are weaker:**\n- **Victor Ceban** is in screening with a 50% match (.NET and PostgreSQL, but no C# or GraphQL)[4]. Lacking C# for a .NET role is odd, so his profile may be worth double-checking.\n- **Radu Stoica and Mihai Lungu** have applied but not been screened yet. Each matches only 25% (C# only).\n- **Nicoleta Turcan** was already rejected.\n\nNext week's two technical interviews will decide whether Cristina or Ana is the backup if Daria turns down the offer.",
+        "sources": [
+          {
+            "number": 1,
+            "title": "Application: Daria Munteanu for Senior .NET Engineer",
+            "source": "hireflow://applications/00000000-0000-4000-8000-00000000001b",
+            "quotes": [
+              "Skill match 100%: has C#, .NET, GraphQL, PostgreSQL.",
+              "Phone Screen interview with Irina Balan on 2026-10-10, rated 5/5: Clear, structured answers.",
+              "System Design interview with Victor Moraru on 2026-10-16, rated 5/5: Designed a federated schema unprompted.",
+              "Moved INTERVIEW -> OFFER on 2026-10-18: Offer sent: 58k EUR"
+            ],
+            "job_id": "00000000-0000-4000-8000-000000000005",
+            "candidate_id": "00000000-0000-4000-8000-000000000011"
+          },
+          {
+            "number": 2,
+            "title": "Application: Cristina Melnic for Senior .NET Engineer",
+            "source": "hireflow://applications/00000000-0000-4000-8000-000000000024",
+            "quotes": [
+              "Skill match 75%: has C#, .NET, GraphQL; missing PostgreSQL.",
+              "Technical interview with Victor Moraru on 2026-10-26 (no feedback yet)."
+            ],
+            "job_id": "00000000-0000-4000-8000-000000000005",
+            "candidate_id": "00000000-0000-4000-8000-000000000019"
+          },
+          {
+            "number": 3,
+            "title": "Application: Ana Popescu for Senior .NET Engineer",
+            "source": "hireflow://applications/00000000-0000-4000-8000-000000000020",
+            "quotes": [
+              "Skill match 50%: has C#, .NET; missing GraphQL, PostgreSQL.",
+              "Phone Screen interview with Irina Balan on 2026-10-15, rated 4/5: Solid fundamentals.",
+              "Technical interview with Victor Moraru on 2026-10-25 (no feedback yet)."
+            ],
+            "job_id": "00000000-0000-4000-8000-000000000005",
+            "candidate_id": "00000000-0000-4000-8000-00000000000d"
+          },
+          {
+            "number": 4,
+            "title": "Application: Victor Ceban for Senior .NET Engineer",
+            "source": "hireflow://applications/00000000-0000-4000-8000-000000000028",
+            "quotes": [
+              "Skill match 50%: has .NET, PostgreSQL; missing C#, GraphQL."
+            ],
+            "job_id": "00000000-0000-4000-8000-000000000005",
+            "candidate_id": "00000000-0000-4000-8000-000000000012"
+          }
+        ],
+        "stop": "end_turn",
+        "steps": 3,
+        "tool_calls": [
+          {
+            "name": "list_jobs",
+            "input": {},
+            "is_error": false
+          },
+          {
+            "name": "get_job_pipeline",
+            "input": {
+              "job_id": "00000000-0000-4000-8000-000000000005"
+            },
+            "is_error": false
+          },
+          {
+            "name": "search_hireflow",
+            "input": {
+              "query": "Senior .NET Engineer interview feedback strong candidate",
+              "kind": "application"
+            },
+            "is_error": false
+          }
+        ],
+        "proposed_actions": [],
+        "usage": {
+          "input_tokens": 8,
+          "output_tokens": 1010,
+          "cache_read_tokens": 11130,
+          "cost_usd": 0.022458
+        }
+      }
+    },
+    {
+      "id": "week",
+      "endpoint": "agent",
+      "question": "What interviews are coming up this week?",
+      "response": {
+        "answer": "There are 4 interviews in the next 7 days (Oct 24–31, times in UTC):\n\n- **Sun Oct 25, 14:00**: Ana Popescu, Technical (60 min) with Victor Moraru, Senior .NET Engineer\n- **Mon Oct 26, 11:00**: Cristina Melnic, Technical (60 min) with Victor Moraru, Senior .NET Engineer\n- **Tue Oct 27, 15:00**: Radu Stoica, Technical (60 min) with Elena Sârbu, Full-Stack Developer (.NET + React)\n- **Thu Oct 29, 10:00**: Irina Botnari, Onsite (180 min) with Tom Becker, Frontend Engineer (React)\n\nAna Popescu's interview is tomorrow, which is a Sunday. It may be worth checking that Ana and Victor both know it's on.",
+        "sources": [],
+        "stop": "end_turn",
+        "steps": 2,
+        "tool_calls": [
+          {
+            "name": "upcoming_interviews",
+            "input": {
+              "days": 7
+            },
+            "is_error": false
+          }
+        ],
+        "proposed_actions": [],
+        "usage": {
+          "input_tokens": 6,
+          "output_tokens": 375,
+          "cache_read_tokens": 4238,
+          "cost_usd": 0.008372
+        }
+      }
+    },
+    {
+      "id": "rejection",
+      "endpoint": "ask",
+      "question": "Why was Nicoleta Turcan rejected for the Senior .NET Engineer job?",
+      "response": {
+        "answer": "Nicoleta Turcan was moved SCREENING -> REJECTED on 2026-10-20 with the reason: \"Looking for more senior experience\"[1]. For context, her profile lists 2 years of experience[2], and her application showed a skill match 25%: has C#; missing .NET, GraphQL, PostgreSQL.[1]\n\nShe also has an active application: she applied to Full-Stack Developer (.NET + React) at Northwind Labs on 2026-10-22. Current stage: APPLIED.[3]",
+        "sources": [
+          {
+            "number": 1,
+            "title": "Application: Nicoleta Turcan for Senior .NET Engineer",
+            "source": "hireflow://applications/00000000-0000-4000-8000-00000000002b",
+            "quotes": [
+              "Moved SCREENING -> REJECTED on 2026-10-20: Looking for more senior experience",
+              "Skill match 25%: has C#; missing .NET, GraphQL, PostgreSQL."
+            ],
+            "job_id": "00000000-0000-4000-8000-000000000005",
+            "candidate_id": "00000000-0000-4000-8000-000000000017"
+          },
+          {
+            "number": 2,
+            "title": "Candidate: Nicoleta Turcan",
+            "source": "hireflow://candidates/00000000-0000-4000-8000-000000000017",
+            "quotes": [
+              "Nicoleta Turcan: Software engineer. 2 years of experience."
+            ],
+            "job_id": null,
+            "candidate_id": "00000000-0000-4000-8000-000000000017"
+          },
+          {
+            "number": 3,
+            "title": "Application: Nicoleta Turcan for Full-Stack Developer (.NET + React)",
+            "source": "hireflow://applications/00000000-0000-4000-8000-00000000003c",
+            "quotes": [
+              "Nicoleta Turcan applied to Full-Stack Developer (.NET + React) at Northwind Labs on 2026-10-22. Current stage: APPLIED."
+            ],
+            "job_id": "00000000-0000-4000-8000-000000000006",
+            "candidate_id": "00000000-0000-4000-8000-000000000017"
+          }
+        ],
+        "mode": "llm",
+        "retrieved": [
+          {
+            "title": "Application: Nicoleta Turcan for Senior .NET Engineer",
+            "source": "hireflow://applications/00000000-0000-4000-8000-00000000002b",
+            "score": 0.03279,
+            "dense_rank": 1,
+            "sparse_rank": 1
+          },
+          {
+            "title": "Candidate: Nicoleta Turcan",
+            "source": "hireflow://candidates/00000000-0000-4000-8000-000000000017",
+            "score": 0.03226,
+            "dense_rank": 2,
+            "sparse_rank": 2
+          },
+          {
+            "title": "Application: Nicoleta Turcan for Full-Stack Developer (.NET + React)",
+            "source": "hireflow://applications/00000000-0000-4000-8000-00000000003c",
+            "score": 0.03175,
+            "dense_rank": 3,
+            "sparse_rank": 3
+          },
+          {
+            "title": "Application: Cristina Melnic for Senior .NET Engineer",
+            "source": "hireflow://applications/00000000-0000-4000-8000-000000000024",
+            "score": 0.02942,
+            "dense_rank": 7,
+            "sparse_rank": 9
+          },
+          {
+            "title": "Application: Ana Popescu for Senior .NET Engineer",
+            "source": "hireflow://applications/00000000-0000-4000-8000-000000000020",
+            "score": 0.02927,
+            "dense_rank": 5,
+            "sparse_rank": 12
+          }
+        ],
+        "usage": {
+          "input_tokens": 4,
+          "output_tokens": 237,
+          "cache_read_tokens": 2207,
+          "cost_usd": 0.005197
+        }
+      }
+    },
+    {
+      "id": "frontend-fit",
+      "endpoint": "agent",
+      "question": "Which candidates who haven't applied would fit the Frontend Engineer (React) job?",
+      "response": {
+        "answer": "I found two people who haven't applied and are reasonable fits. The job requires **React, TypeScript, GraphQL and Testing**. Each of them has React and TypeScript, so half the list. Neither has GraphQL or testing in their profile.\n\n- **Radu Stoica**: Full-stack .NET developer. 6 years of experience. Skills: C#, React, SQL, TypeScript.[1] He's the most experienced of the two.\n- **Ion Rusu**: Full-stack developer. 4 years of experience. Skills: React, C#, TypeScript.[2]\n\nBoth may also suit Northwind's Full-Stack Developer (.NET + React) job, which matches their skills more closely.\n\nThese two match only partly:\n- **Sofia Gheorghiu** is a QA engineer. 4 years of experience. Skills: Playwright, TypeScript, Cypress.[3] She has TypeScript and testing, but no React.\n- **Daria Munteanu** is a Senior backend engineer, GraphQL enthusiast.[4] She has GraphQL, but she works on the backend.\n\nI left out Irina Botnari, Andrei Rotaru and Alexandru Vrabie because they've already applied. I can set up a screening call with Radu or Ion if you want, but they'd need an application for this job first.",
+        "sources": [
+          {
+            "number": 1,
+            "title": "Candidate: Radu Stoica",
+            "source": "hireflow://candidates/00000000-0000-4000-8000-000000000016",
+            "quotes": [
+              "Radu Stoica: Full-stack .NET developer. 6 years of experience.Skills: C#, React, SQL, TypeScript."
+            ],
+            "job_id": null,
+            "candidate_id": "00000000-0000-4000-8000-000000000016"
+          },
+          {
+            "number": 2,
+            "title": "Candidate: Ion Rusu",
+            "source": "hireflow://candidates/00000000-0000-4000-8000-00000000000e",
+            "quotes": [
+              "Ion Rusu: Full-stack developer. 4 years of experience.Skills: React, C#, TypeScript."
+            ],
+            "job_id": null,
+            "candidate_id": "00000000-0000-4000-8000-00000000000e"
+          },
+          {
+            "number": 3,
+            "title": "Candidate: Sofia Gheorghiu",
+            "source": "hireflow://candidates/00000000-0000-4000-8000-000000000015",
+            "quotes": [
+              "Sofia Gheorghiu: QA engineer. 4 years of experience.Skills: Playwright, TypeScript, Cypress."
+            ],
+            "job_id": null,
+            "candidate_id": "00000000-0000-4000-8000-000000000015"
+          },
+          {
+            "number": 4,
+            "title": "Candidate: Daria Munteanu",
+            "source": "hireflow://candidates/00000000-0000-4000-8000-000000000011",
+            "quotes": [
+              "Daria Munteanu: Senior backend engineer, GraphQL enthusiast. 8 years of experience."
+            ],
+            "job_id": null,
+            "candidate_id": "00000000-0000-4000-8000-000000000011"
+          }
+        ],
+        "stop": "end_turn",
+        "steps": 3,
+        "tool_calls": [
+          {
+            "name": "list_jobs",
+            "input": {},
+            "is_error": false
+          },
+          {
+            "name": "search_hireflow",
+            "input": {
+              "query": "React TypeScript frontend engineer",
+              "kind": "candidate"
+            },
+            "is_error": false
+          },
+          {
+            "name": "get_job_pipeline",
+            "input": {
+              "job_id": "00000000-0000-4000-8000-000000000007"
+            },
+            "is_error": false
+          },
+          {
+            "name": "search_hireflow",
+            "input": {
+              "query": "GraphQL frontend testing Jest Playwright",
+              "kind": "candidate"
+            },
+            "is_error": false
+          }
+        ],
+        "proposed_actions": [],
+        "usage": {
+          "input_tokens": 8,
+          "output_tokens": 914,
+          "cache_read_tokens": 6308,
+          "cost_usd": 0.050144
+        }
+      }
+    },
+    {
+      "id": "advance-ana",
+      "endpoint": "agent",
+      "question": "Ana Popescu's phone screen went well. Move her Senior .NET application to the offer stage.",
+      "response": {
+        "answer": "I've created a request to move Ana Popescu's Senior .NET Engineer application from **Interview** to **Offer**, with the note \"Phone screen went well; moving to offer.\" **Her stage hasn't changed yet.** A recruiter has to confirm the request first (pending action `5fdab76fdd44`).",
+        "sources": [],
+        "stop": "end_turn",
+        "steps": 3,
+        "tool_calls": [
+          {
+            "name": "get_candidate",
+            "input": {
+              "name_or_email": "Ana Popescu"
+            },
+            "is_error": false
+          },
+          {
+            "name": "propose_stage_change",
+            "input": {
+              "application_id": "00000000-0000-4000-8000-000000000020",
+              "stage": "OFFER",
+              "note": "Phone screen went well; moving to offer."
+            },
+            "is_error": false
+          }
+        ],
+        "proposed_actions": [
+          {
+            "id": "5fdab76fdd44",
+            "kind": "move_application",
+            "summary": "Move Ana Popescu from INTERVIEW to OFFER (Phone screen went well; moving to offer.)",
+            "params": {
+              "application_id": "00000000-0000-4000-8000-000000000020",
+              "stage": "OFFER",
+              "note": "Phone screen went well; moving to offer."
+            },
+            "confirm_url": "/v1/actions/5fdab76fdd44/confirm"
+          }
+        ],
+        "usage": {
+          "input_tokens": 8,
+          "output_tokens": 290,
+          "cache_read_tokens": 6305,
+          "cost_usd": 0.008153
+        }
+      }
+    },
+    {
+      "id": "hire-ana",
+      "endpoint": "agent",
+      "question": "Mark Ana Popescu as hired.",
+      "response": {
+        "answer": "I can't mark Ana Popescu as hired yet. Her application for **Senior .NET Engineer** is at the **INTERVIEW** stage, and from there it can only move to OFFER, REJECTED or WITHDRAWN. It has to go to OFFER before it can go to HIRED.\n\nShould I propose moving her to OFFER now? A recruiter would need to confirm that, and once she's at OFFER I can propose HIRED.",
+        "sources": [],
+        "stop": "end_turn",
+        "steps": 2,
+        "tool_calls": [
+          {
+            "name": "get_candidate",
+            "input": {
+              "name_or_email": "Ana Popescu"
+            },
+            "is_error": false
+          }
+        ],
+        "proposed_actions": [],
+        "usage": {
+          "input_tokens": 6,
+          "output_tokens": 274,
+          "cache_read_tokens": 4081,
+          "cost_usd": 0.00632
+        }
+      }
+    }
+  ]
+}

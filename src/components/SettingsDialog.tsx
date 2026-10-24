@@ -8,6 +8,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
   const { settings, updateSettings } = useApi()
   const [mode, setMode] = useState<ApiMode>(settings.mode)
   const [apiUrl, setApiUrl] = useState(settings.apiUrl)
+  const [copilotUrl, setCopilotUrl] = useState(settings.copilotUrl)
   const dialog = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -16,7 +17,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    updateSettings({ mode, apiUrl: apiUrl.trim() })
+    updateSettings({ mode, apiUrl: apiUrl.trim(), copilotUrl: copilotUrl.trim() })
     onClose()
   }
 
@@ -71,6 +72,22 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
             />
             <span className="mt-1 block text-xs text-ink-3">
               e.g. <code>http://localhost:5230</code>. The API must list this site in <code>Cors:AllowedOrigins</code>.
+            </span>
+          </label>
+        )}
+
+        {mode === 'live' && (
+          <label className="block">
+            <span className="text-sm font-medium">Copilot URL</span>
+            <input
+              type="url"
+              value={copilotUrl}
+              onChange={(e) => setCopilotUrl(e.target.value)}
+              placeholder="http://localhost:8000"
+              className="mt-1 w-full rounded-sm border border-line bg-canvas px-3 py-2 text-sm focus:outline-2 focus:outline-accent"
+            />
+            <span className="mt-1 block text-xs text-ink-3">
+              A running <a className="underline" href="https://github.com/AutumnTrace/hireflow-copilot">HireFlow Copilot</a> reading the same API (<code>COPILOT_SOURCE=graphql</code>).
             </span>
           </label>
         )}
