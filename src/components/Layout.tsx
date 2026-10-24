@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router'
 import { useApi } from '../api/ApiProvider'
+import { CopilotPanel } from '../copilot/CopilotPanel'
 import { Button, Card, PageBody, Skeleton } from './ui'
 import { SettingsDialog } from './SettingsDialog'
 
@@ -50,6 +51,7 @@ function Wordmark() {
 export function Layout() {
   const { settings, connection, reset } = useApi()
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [copilotOpen, setCopilotOpen] = useState(false)
   const [theme, setTheme] = useTheme()
   const nextTheme: Record<Theme, Theme> = { system: 'light', light: 'dark', dark: 'system' }
 
@@ -82,6 +84,14 @@ export function Layout() {
                 Reset demo
               </Button>
             )}
+            <Button
+              variant="mast"
+              onClick={() => setCopilotOpen((open) => !open)}
+              aria-expanded={copilotOpen}
+              disabled={connection.status !== 'ready'}
+            >
+              <span aria-hidden>✦</span> Copilot
+            </Button>
             <Button
               variant="mast"
               onClick={() => setTheme(nextTheme[theme])}
@@ -132,6 +142,7 @@ export function Layout() {
       </main>
 
       {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
+      {copilotOpen && connection.status === 'ready' && <CopilotPanel onClose={() => setCopilotOpen(false)} />}
     </div>
   )
 }
