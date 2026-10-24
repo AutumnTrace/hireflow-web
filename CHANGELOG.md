@@ -5,6 +5,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-24
+
+### Added
+
+- **✦ Copilot panel** for [HireFlow Copilot](https://github.com/AutumnTrace/hireflow-copilot) (Claude agent + RAG over HireFlow):
+  - Answers render a safe Markdown subset with `[n]` citation markers; clicking one opens the cited source, which links to its job or candidate page.
+  - Tool calls and cost are shown under each answer.
+  - Proposed stage changes get an **Apply** button that runs `moveApplication` with the app's own session. In live mode it then asks the copilot to re-index.
+  - **Demo mode** replays real recorded answers about the demo dataset, labelled with the recording date and model. **Live API** mode calls a copilot at a configurable URL.
+- *Copilot URL* in the Live API settings (`VITE_COPILOT_URL`, default `http://localhost:8000`)
+- `scripts/export-demo-data.ts` exports the demo dataset for the copilot, so recorded ids match the board.
+
 ## [1.1.0] - 2026-10-22
 
 ### Changed
@@ -38,6 +50,7 @@ First release, built against [HireFlow API v1.1.1](https://github.com/AutumnTrac
 - Vitest + Testing Library unit tests, Playwright end-to-end tests (desktop and mobile)
 - CI and automatic deployment of the demo to GitHub Pages
 
-[Unreleased]: https://github.com/AutumnTrace/hireflow-web/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/AutumnTrace/hireflow-web/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/AutumnTrace/hireflow-web/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/AutumnTrace/hireflow-web/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/AutumnTrace/hireflow-web/releases/tag/v1.0.0

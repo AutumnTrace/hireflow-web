@@ -12,7 +12,7 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178c6?logo=typescript&logoColor=white)
 ![GraphQL](https://img.shields.io/badge/GraphQL-urql%20%2B%20codegen-E10098?logo=graphql&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-29%20unit%20%C2%B7%2012%20e2e-brightgreen)
+![Tests](https://img.shields.io/badge/tests-39%20unit%20%C2%B7%2014%20e2e-brightgreen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ### [▶ Try the live demo](https://autumntrace.github.io/hireflow-web/)
@@ -38,6 +38,7 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
 | 🔒 **End-to-end types** | Every query is checked against the API's `schema.graphql` at build time, and the results are fully typed. CI fails if the generated types drift. |
 | 🎯 **Skill matching** | Cards and profiles show 5-segment skill-match meters, matched/missing skills and ranked job recommendations from the API. |
 | ⏱️ **Pipeline health** | Numbered stage counters with stage-to-stage conversion, days-in-stage on every card, and a *stalled* flag for applications untouched for over a week. |
+| ✦ **AI copilot** | A side panel backed by [HireFlow Copilot](https://github.com/AutumnTrace/hireflow-copilot) (Claude + RAG). Answers cite the HireFlow records they come from, and each citation links to that job or candidate. Changes the agent proposes wait for you to click **Apply**, which runs `moveApplication` with the app's own session. |
 | 🧪 **Demo mode** | The real HireFlow schema executes **in the browser** against sample data, so the public demo works without a backend while using the same operations, paging, filtering and errors. |
 | ♿ **Accessible** | Every drag has a keyboard/menu alternative; columns, meters and charts carry labels and a screen-reader table. |
 | 🌗 **Light & dark** | Semantic colour tokens with a system/light/dark toggle. |
@@ -61,6 +62,11 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
   </tr>
 </table>
 
+<p align="center">
+  <img src="docs/screenshots/v1.2-copilot.png" alt="Job detail page with the Copilot panel open on the right: a question about the strongest Senior .NET candidates, answered as a numbered list with superscript citation markers" width="100%">
+</p>
+<p align="center"><sub>The copilot ranking the Senior .NET pipeline, with citations back to each application</sub></p>
+
 ## 🚀 Quick start
 
 ```bash
@@ -83,6 +89,21 @@ Open http://localhost:5173. It starts in **Demo mode**, with nothing else to run
 The Vite dev server proxies `/graphql` (HTTP and WebSocket) and `/auth` to the API, so no CORS setup is needed in development. The app signs in through the API's development token endpoint as a demo recruiter.
 
 > To point at an API on another origin, enter its URL in settings and add this site to the API's `Cors:AllowedOrigins`.
+
+### The copilot
+
+In **Demo mode**, the **✦ Copilot** panel replays real answers that Claude gave about this exact demo dataset (recorded with the copilot's `scripts/record_answers.py`). It shows the recording date, and **Apply** on a proposed move changes the in-browser board for real. Nothing calls an AI service, so the public demo costs nothing to run.
+
+In **Live API** mode, it calls a running [HireFlow Copilot](https://github.com/AutumnTrace/hireflow-copilot) and takes any question:
+
+```bash
+# in hireflow-copilot, with ANTHROPIC_API_KEY in .env
+COPILOT_SOURCE=graphql COPILOT_HIREFLOW_URL=http://localhost:5230/graphql uv run hireflow-copilot
+```
+
+The copilot URL (default `http://localhost:8000`) is under **Live API** in settings. After you apply a change, the panel asks the copilot to re-index, so its next answer sees the new stage.
+
+> The demo dataset is shared with the copilot through `scripts/export-demo-data.ts`, so names, stages and application ids in recorded answers match the board.
 
 ## 🏗 How it works
 
@@ -127,6 +148,7 @@ The job board also requests a fixed page size (`first: 12`, with **Load more**) 
 ```
 src/
 ├── api/              # Data source settings, live urql client (HTTP + graphql-ws), dev sign-in
+├── copilot/          # Copilot panel: API client, recorded answers, Markdown-subset + citation renderer
 ├── demo/             # In-browser HireFlow: dataset, executable schema, filter/sort/paging interpreter
 ├── features/
 │   ├── jobs/         # Job board, job detail, stage strip, pipeline board, live activity feed
@@ -145,8 +167,8 @@ schema.graphql        # API contract, synced from AutumnTrace/hireflow
 |---|---|
 | `npm run lint` | [oxlint](https://oxc.rs) with React, a11y and Vitest rules |
 | `npm run typecheck` | TypeScript (strict) |
-| `npm test` | Vitest + Testing Library: demo schema rules, filter/paging interpreter, board behaviour, job board against the demo API |
-| `npm run test:e2e` | Playwright against the production build: real mouse drags, illegal-move errors, filters, profiles, settings, mobile viewport |
+| `npm test` | Vitest + Testing Library: demo schema rules, filter/paging interpreter, board behaviour, job board against the demo API, copilot rendering and replay |
+| `npm run test:e2e` | Playwright against the production build: real mouse drags, illegal-move errors, filters, profiles, settings, copilot citations and applying a proposal, mobile viewport |
 | `npm run codegen` | Regenerate typed documents (CI fails if `src/gql` is stale) |
 | `npm run schema:pull` | Fetch the latest API schema and regenerate |
 
