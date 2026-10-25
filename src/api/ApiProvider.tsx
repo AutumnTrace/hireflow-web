@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Provider as UrqlProvider, type Client } from 'urql'
+import type { ApplicationStage } from '../gql/graphql'
 import { fetchDevToken } from './auth'
 import { createLiveClient } from './client'
 import { loadSettings, saveSettings, type ApiSettings } from './settings'
@@ -9,13 +10,25 @@ export type Connection =
   | { status: 'ready'; client: Client }
   | { status: 'error'; message: string }
 
+/** A copilot proposal the user applied, remembered so recorded answers can say they predate it. */
+export interface AppliedMove {
+  applicationId: string
+  candidate: string
+  stage: ApplicationStage
+}
+
 interface ApiContextValue {
   settings: ApiSettings
   connection: Connection
   updateSettings: (settings: ApiSettings) => void
   /** Discards all demo changes (or reconnects in live mode). */
   reset: () => void
+  /** Moves applied from the copilot against the current data. Cleared whenever the data is reloaded. */
+  appliedMoves: readonly AppliedMove[]
+  recordMove: (move: AppliedMove) => void
 }
+
+const NO_MOVES: readonly AppliedMove[] = []
 
 const ApiContext = createContext<ApiContextValue | null>(null)
 
@@ -77,7 +90,22 @@ export function ApiProvider({ children, initialSettings }: { children: ReactNode
 
   const reset = useCallback(() => setGeneration((g) => g + 1), [])
 
-  const value = useMemo(() => ({ settings, connection, updateSettings, reset }), [settings, connection, updateSettings, reset])
+  // Tagged with the attempt like the connection, so a reset or a backend switch forgets them.
+  const [moves, setMoves] = useState<{ attempt: string; list: readonly AppliedMove[] }>({ attempt, list: NO_MOVES })
+  const appliedMoves = moves.attempt === attempt ? moves.list : NO_MOVES
+  const recordMove = useCallback(
+    (move: AppliedMove) =>
+      setMoves((current) => {
+        const kept = current.attempt === attempt ? current.list.filter((m) => m.applicationId !== move.applicationId) : []
+        return { attempt, list: [...kept, move] }
+      }),
+    [attempt],
+  )
+
+  const value = useMemo(
+    () => ({ settings, connection, updateSettings, reset, appliedMoves, recordMove }),
+    [settings, connection, updateSettings, reset, appliedMoves, recordMove],
+  )
 
   return (
     <ApiContext.Provider value={value}>

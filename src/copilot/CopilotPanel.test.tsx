@@ -60,6 +60,70 @@ describe('CopilotPanel in demo mode', () => {
   })
 })
 
+describe('CopilotPanel replays after Apply', () => {
+  const STRONGEST = /strongest candidates for the Senior .NET Engineer role/
+  const MOVE_ANA = /Move her Senior .NET application to the offer stage/
+
+  function ResetButton() {
+    return <button onClick={useApi().reset}>Reset demo</button>
+  }
+
+  async function applyAnaToOffer(user: ReturnType<typeof userEvent.setup>) {
+    await user.click(await screen.findByRole('button', { name: MOVE_ANA }))
+    await user.click(await screen.findByRole('button', { name: 'Apply' }))
+    await screen.findByText('✓ Applied')
+  }
+
+  it('flags a recorded answer that cites an application the user has since moved', async () => {
+    const user = userEvent.setup()
+    renderPanel('demo')
+
+    await applyAnaToOffer(user)
+    // The answer that proposed the move was recorded before it too, but it was asked before Apply.
+    const proposing = screen.getByRole('region', { name: MOVE_ANA })
+    expect(within(proposing).queryByRole('note')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: STRONGEST }))
+    const replay = await screen.findByRole('region', { name: STRONGEST })
+    expect(within(replay).getByRole('note')).toHaveTextContent('Recorded before you moved Ana Popescu to Offer.')
+  })
+
+  it('leaves answers about other applications alone', async () => {
+    const user = userEvent.setup()
+    renderPanel('demo')
+
+    await applyAnaToOffer(user)
+    await user.click(screen.getByRole('button', { name: /Why was Nicoleta Turcan rejected/ }))
+
+    const replay = await screen.findByRole('region', { name: /Why was Nicoleta Turcan rejected/ })
+    expect(within(replay).queryByRole('note')).not.toBeInTheDocument()
+  })
+
+  it('forgets applied moves on Reset demo', async () => {
+    const user = userEvent.setup()
+    render(
+      <ApiProvider initialSettings={{ mode: 'demo', apiUrl: '', copilotUrl: 'http://copilot.test' }}>
+        <Toaster>
+          <MemoryRouter>
+            <ResetButton />
+            <WhenConnected>
+              <CopilotPanel onClose={() => {}} />
+            </WhenConnected>
+          </MemoryRouter>
+        </Toaster>
+      </ApiProvider>,
+    )
+
+    await applyAnaToOffer(user)
+    await user.click(screen.getByRole('button', { name: 'Reset demo' }))
+
+    // The panel remounts on the fresh data; the same replay is accurate again.
+    await user.click(await screen.findByRole('button', { name: STRONGEST }))
+    const replay = await screen.findByRole('region', { name: STRONGEST })
+    expect(within(replay).queryByRole('note')).not.toBeInTheDocument()
+  })
+})
+
 vi.mock('./client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./client')>()),
   askCopilot: vi.fn<typeof import('./client').askCopilot>(),
