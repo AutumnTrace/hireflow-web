@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-10-25
+
+### Fixed
+
+- **Copilot demo:** after you **Apply** a proposal, replayed answers that cite that application now say they were recorded before your change ("Recorded before you moved Ana Popescu to Offer."). Cleared by **Reset demo** (#13)
+
 ## [1.2.0] - 2026-10-24
 
 ### Added
@@ -50,7 +56,8 @@ First release, built against [HireFlow API v1.1.1](https://github.com/AutumnTrac
 - Vitest + Testing Library unit tests, Playwright end-to-end tests (desktop and mobile)
 - CI and automatic deployment of the demo to GitHub Pages
 
-[Unreleased]: https://github.com/AutumnTrace/hireflow-web/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/AutumnTrace/hireflow-web/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/AutumnTrace/hireflow-web/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/AutumnTrace/hireflow-web/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/AutumnTrace/hireflow-web/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/AutumnTrace/hireflow-web/releases/tag/v1.0.0

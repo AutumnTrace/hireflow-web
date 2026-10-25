@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useMutation } from 'urql'
-import { useApi } from '../api/ApiProvider'
+import { useApi, type AppliedMove } from '../api/ApiProvider'
 import { useToast } from '../components/Toaster'
 import { Button, Chip } from '../components/ui'
 import { MoveApplicationMutation } from '../features/jobs/operations'
@@ -18,6 +18,25 @@ interface Turn {
   state: 'loading' | 'done' | 'error'
   response?: CopilotResponse
   error?: string
+  /** Demo replays only: moves applied before this replay that the recorded answer can't know about. */
+  stale?: readonly AppliedMove[]
+}
+
+/** Whether a response cites or proposes changes to this application. */
+function mentions(response: CopilotResponse, applicationId: string): boolean {
+  return (
+    response.sources.some((s) => s.source === `hireflow://applications/${applicationId}`) ||
+    (response.proposed_actions ?? []).some((p) => p.params.application_id === applicationId)
+  )
+}
+
+function StaleNotice({ moves }: { moves: readonly AppliedMove[] }) {
+  const changes = moves.map((m) => `moved ${m.candidate} to ${STAGE_LABEL[m.stage] ?? m.stage}`)
+  return (
+    <p role="note" className="border-l-2 border-amber-500 bg-amber-500/10 px-2.5 py-1.5 text-xs text-ink-2">
+      Recorded before you {changes.join(' and ')}.
+    </p>
+  )
 }
 
 type ApplyState = 'applying' | 'applied' | { error: string }
@@ -183,7 +202,7 @@ function Meta({ response, recorded }: { response: CopilotResponse; recorded: boo
 }
 
 export function CopilotPanel({ onClose }: { onClose: () => void }) {
-  const { settings } = useApi()
+  const { settings, appliedMoves, recordMove } = useApi()
   const toast = useToast()
   const [, moveApplication] = useMutation(MoveApplicationMutation)
   const demo = settings.mode === 'demo'
@@ -223,7 +242,9 @@ export function CopilotPanel({ onClose }: { onClose: () => void }) {
 
     if (demo) {
       const item = recording?.items.find((i) => i.question === question)
-      finish(item ? { state: 'done', response: item.response } : { state: 'error', error: 'No recording for that question.' })
+      // Decided now, not at render: a later Apply shouldn't flag the answer that proposed it.
+      const stale = item ? appliedMoves.filter((m) => mentions(item.response, m.applicationId)) : []
+      finish(item ? { state: 'done', response: item.response, stale } : { state: 'error', error: 'No recording for that question.' })
       return
     }
 
@@ -263,6 +284,8 @@ export function CopilotPanel({ onClose }: { onClose: () => void }) {
       return
     }
     setApplied((s) => ({ ...s, [proposal.id]: 'applied' }))
+    const candidate = result.data?.moveApplication.jobApplication?.candidate.fullName
+    if (candidate) recordMove({ applicationId: application_id, candidate, stage: stage as ApplicationStage })
     toast({ tone: 'success', title: `Moved to ${STAGE_LABEL[stage as ApplicationStage] ?? stage}`, description: proposal.summary })
     if (!demo) void refreshCopilotIndex(settings.copilotUrl)
   }
@@ -321,6 +344,7 @@ export function CopilotPanel({ onClose }: { onClose: () => void }) {
             )}
             {turn.response && (
               <>
+                {turn.stale && turn.stale.length > 0 && <StaleNotice moves={turn.stale} />}
                 <Answer response={turn.response} turnId={turn.id} />
                 {(turn.response.proposed_actions ?? []).map((p) => (
                   <Proposal key={p.id} proposal={p} state={applied[p.id]} onApply={() => void apply(p)} />

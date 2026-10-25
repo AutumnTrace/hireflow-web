@@ -95,6 +95,10 @@ export const MoveApplicationMutation = graphql(`
         stage
         updatedAt
         allowedNextStages
+        candidate {
+          id
+          fullName
+        }
       }
       errors {
         __typename
