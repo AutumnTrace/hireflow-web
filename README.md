@@ -12,7 +12,7 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178c6?logo=typescript&logoColor=white)
 ![GraphQL](https://img.shields.io/badge/GraphQL-urql%20%2B%20codegen-E10098?logo=graphql&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-39%20unit%20%C2%B7%2014%20e2e-brightgreen)
+![Tests](https://img.shields.io/badge/tests-45%20unit%20%C2%B7%2014%20e2e-brightgreen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ### [▶ Try the live demo](https://autumntrace.github.io/hireflow-web/)
@@ -38,7 +38,7 @@ Built with **React 19**, **TypeScript**, **urql** and **GraphQL Code Generator**
 | 🔒 **End-to-end types** | Every query is checked against the API's `schema.graphql` at build time, and the results are fully typed. CI fails if the generated types drift. |
 | 🎯 **Skill matching** | Cards and profiles show 5-segment skill-match meters, matched/missing skills and ranked job recommendations from the API. |
 | ⏱️ **Pipeline health** | Numbered stage counters with stage-to-stage conversion, days-in-stage on every card, and a *stalled* flag for applications untouched for over a week. |
-| ✦ **AI copilot** | A side panel backed by [HireFlow Copilot](https://github.com/AutumnTrace/hireflow-copilot) (Claude + RAG). Answers cite the HireFlow records they come from, and each citation links to that job or candidate. Changes the agent proposes wait for you to click **Apply**, which runs `moveApplication` with the app's own session. |
+| ✦ **AI copilot** | A side panel backed by [HireFlow Copilot](https://github.com/AutumnTrace/hireflow-copilot) (Claude + RAG). Answers cite the HireFlow records they come from, and each citation links to that job or candidate. Changes the agent proposes wait for you to click **Apply**, which runs `moveApplication` or `scheduleInterview` with the app's own session. |
 | 🧪 **Demo mode** | The real HireFlow schema executes **in the browser** against sample data, so the public demo works without a backend while using the same operations, paging, filtering and errors. |
 | ♿ **Accessible** | Every drag has a keyboard/menu alternative; columns, meters and charts carry labels and a screen-reader table. |
 | 🌗 **Light & dark** | Semantic colour tokens with a system/light/dark toggle. |

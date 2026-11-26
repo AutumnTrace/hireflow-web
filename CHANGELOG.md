@@ -5,6 +5,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- **Copilot panel:** **Apply** now works on `schedule_interview` proposals. It runs `scheduleInterview`, the interview shows on the Interviews agenda, and API errors (closed application, unknown id, invalid duration) appear next to the proposal. The in-browser demo engine implements `scheduleInterview` with the API's checks.
+
 ## [1.2.1] - 2026-10-25
 
 ### Fixed

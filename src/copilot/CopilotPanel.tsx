@@ -5,6 +5,7 @@ import { useMutation } from 'urql'
 import { useApi, type AppliedMove } from '../api/ApiProvider'
 import { useToast } from '../components/Toaster'
 import { Button, Chip } from '../components/ui'
+import { ScheduleInterviewMutation } from '../features/interviews/operations'
 import { MoveApplicationMutation } from '../features/jobs/operations'
 import type { ApplicationStage } from '../gql/graphql'
 import { STAGE_LABEL } from '../lib/stages'
@@ -166,7 +167,6 @@ function Proposal({
   state: ApplyState | undefined
   onApply: () => void
 }) {
-  const canApply = proposal.kind === 'move_application'
   return (
     <div className="corner-marks border border-accent/40 bg-accent-soft/40 p-3">
       <p className="label-caps text-[0.7rem] text-accent-ink">Proposed change · needs your approval</p>
@@ -175,11 +175,10 @@ function Proposal({
         {state === 'applied' ? (
           <span className="text-sm font-medium text-accent-ink">✓ Applied</span>
         ) : (
-          <Button variant="primary" onClick={onApply} disabled={!canApply || state === 'applying'}>
+          <Button variant="primary" onClick={onApply} disabled={state === 'applying'}>
             {state === 'applying' ? 'Applying…' : 'Apply'}
           </Button>
         )}
-        {!canApply && <span className="text-xs text-ink-3">Scheduling from the panel isn't supported yet.</span>}
       </div>
       {typeof state === 'object' && <p role="alert" className="mt-2 text-xs text-rose-600">{state.error}</p>}
     </div>
@@ -205,6 +204,7 @@ export function CopilotPanel({ onClose }: { onClose: () => void }) {
   const { settings, appliedMoves, recordMove } = useApi()
   const toast = useToast()
   const [, moveApplication] = useMutation(MoveApplicationMutation)
+  const [, scheduleInterview] = useMutation(ScheduleInterviewMutation)
   const demo = settings.mode === 'demo'
 
   const [recording, setRecording] = useState<Recording | null>(null)
@@ -272,21 +272,30 @@ export function CopilotPanel({ onClose }: { onClose: () => void }) {
     void ask(question, 'agent')
   }
 
+  /** Shows the API's own message inline: closed application, unknown id, invalid duration. */
+  const fail = (id: string, domainError: { message?: string } | undefined, error: { message: string } | undefined) =>
+    setApplied((s) => ({ ...s, [id]: { error: domainError?.message ?? error?.message ?? 'Failed' } }))
+
   const apply = async (proposal: CopilotProposal) => {
-    if (proposal.kind !== 'move_application') return
     setApplied((s) => ({ ...s, [proposal.id]: 'applying' }))
-    const { application_id, stage, note } = proposal.params
-    const result = await moveApplication({ applicationId: application_id, stage: stage as ApplicationStage, note })
-    const domainError = result.data?.moveApplication.errors?.[0]
-    if (result.error || domainError) {
-      const message = domainError && 'message' in domainError ? domainError.message : (result.error?.message ?? 'Failed')
-      setApplied((s) => ({ ...s, [proposal.id]: { error: message } }))
-      return
+    if (proposal.kind === 'move_application') {
+      const { application_id, stage, note } = proposal.params
+      const result = await moveApplication({ applicationId: application_id, stage: stage as ApplicationStage, note })
+      const domainError = result.data?.moveApplication.errors?.[0]
+      if (result.error || domainError) return fail(proposal.id, domainError, result.error)
+      const candidate = result.data?.moveApplication.jobApplication?.candidate.fullName
+      if (candidate) recordMove({ applicationId: application_id, candidate, stage: stage as ApplicationStage })
+      toast({ tone: 'success', title: `Moved to ${STAGE_LABEL[stage as ApplicationStage] ?? stage}`, description: proposal.summary })
+    } else {
+      const { application_id, kind, scheduled_at, duration_minutes, interviewer } = proposal.params
+      const result = await scheduleInterview({
+        input: { applicationId: application_id, kind, scheduledAt: scheduled_at, durationMinutes: duration_minutes, interviewer },
+      })
+      const domainError = result.data?.scheduleInterview.errors?.[0]
+      if (result.error || domainError) return fail(proposal.id, domainError, result.error)
+      toast({ tone: 'success', title: 'Interview scheduled', description: proposal.summary })
     }
     setApplied((s) => ({ ...s, [proposal.id]: 'applied' }))
-    const candidate = result.data?.moveApplication.jobApplication?.candidate.fullName
-    if (candidate) recordMove({ applicationId: application_id, candidate, stage: stage as ApplicationStage })
-    toast({ tone: 'success', title: `Moved to ${STAGE_LABEL[stage as ApplicationStage] ?? stage}`, description: proposal.summary })
     if (!demo) void refreshCopilotIndex(settings.copilotUrl)
   }
 

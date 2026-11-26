@@ -92,6 +92,51 @@ describe('demo schema', () => {
   })
 })
 
+const SCHEDULE = `
+  mutation ($input: ScheduleInterviewInput!) {
+    scheduleInterview(input: $input) {
+      interview { id kind scheduledAt durationMinutes interviewer application { id } }
+      errors { __typename ... on Error { message } ... on DomainValidationError { field } ... on ApplicationClosedError { stage } }
+    }
+  }`
+
+describe('demo scheduleInterview', () => {
+  const tomorrow = () => new Date(Date.now() + 86_400_000).toISOString()
+  const applicationOf = (store: ReturnType<typeof setup>['store'], stage: string) => store.applications.find((a) => a.stage === stage)!
+
+  it('adds the interview to the upcoming agenda', async () => {
+    const { store, run } = setup()
+    const app = applicationOf(store, 'INTERVIEW')
+    const at = tomorrow()
+    const data = await run(SCHEDULE, { input: { applicationId: app.id, kind: 'TECHNICAL', scheduledAt: at, durationMinutes: 60, interviewer: '  Irina Balan ' } })
+
+    expect(data.scheduleInterview.errors).toBeNull()
+    expect(data.scheduleInterview.interview).toMatchObject({ kind: 'TECHNICAL', scheduledAt: at, durationMinutes: 60, interviewer: 'Irina Balan', application: { id: app.id } })
+    const agenda = await run(`{ upcomingInterviews(days: 2) { id } }`)
+    expect(agenda.upcomingInterviews.map((i: any) => i.id)).toContain(data.scheduleInterview.interview.id)
+  })
+
+  it('refuses closed applications, unknown ids and out-of-range durations, like the API', async () => {
+    const { store, run } = setup()
+    const before = store.interviews.length
+    const input = { kind: 'PHONE_SCREEN', scheduledAt: tomorrow(), durationMinutes: 30, interviewer: 'Irina Balan' }
+
+    const closed = await run(SCHEDULE, { input: { ...input, applicationId: applicationOf(store, 'REJECTED').id } })
+    expect(closed.scheduleInterview.errors).toEqual([{ __typename: 'ApplicationClosedError', message: 'Application is already closed (Rejected).', stage: 'REJECTED' }])
+
+    const missing = await run(SCHEDULE, { input: { ...input, applicationId: '00000000-0000-4000-8000-0000000fffff' } })
+    expect(missing.scheduleInterview.errors[0].__typename).toBe('EntityNotFoundError')
+
+    const active = applicationOf(store, 'SCREENING').id
+    const tooLong = await run(SCHEDULE, { input: { ...input, applicationId: active, durationMinutes: 481 } })
+    expect(tooLong.scheduleInterview.errors).toEqual([{ __typename: 'DomainValidationError', message: 'Interviews must last between 15 minutes and 8 hours.', field: 'durationMinutes' }])
+
+    const nobody = await run(SCHEDULE, { input: { ...input, applicationId: active, interviewer: '   ' } })
+    expect(nobody.scheduleInterview.errors[0]).toMatchObject({ field: 'interviewer' })
+    expect(store.interviews).toHaveLength(before)
+  })
+})
+
 describe('skillMatch', () => {
   it('matches case-insensitively and reports gaps', () => {
     expect(skillMatch(['C#', 'GraphQL', 'SQL', 'Docker'], ['c#', 'sql'])).toEqual({
