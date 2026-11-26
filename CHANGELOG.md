@@ -5,9 +5,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-26
+
 ### Added
 
-- **Copilot panel:** **Apply** now works on `schedule_interview` proposals. It runs `scheduleInterview`, the interview shows on the Interviews agenda, and API errors (closed application, unknown id, invalid duration) appear next to the proposal. The in-browser demo engine implements `scheduleInterview` with the API's checks.
+- **Copilot panel:** **Apply** now works on `schedule_interview` proposals. It runs `scheduleInterview`, the interview shows on the Interviews agenda, and API errors (closed application, unknown id, invalid duration) appear next to the proposal. The in-browser demo engine implements `scheduleInterview` with the API's checks (#25)
+
+### Changed
+
+- Dependencies: react-router 8.5.1 (#16), @types/node 26.6.6 (#18), the GraphQL group (#21) and the tooling group (#23)
 
 ## [1.2.1] - 2026-10-25
 
@@ -60,7 +66,8 @@ First release, built against [HireFlow API v1.1.1](https://github.com/AutumnTrac
 - Vitest + Testing Library unit tests, Playwright end-to-end tests (desktop and mobile)
 - CI and automatic deployment of the demo to GitHub Pages
 
-[Unreleased]: https://github.com/AutumnTrace/hireflow-web/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/AutumnTrace/hireflow-web/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/AutumnTrace/hireflow-web/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/AutumnTrace/hireflow-web/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/AutumnTrace/hireflow-web/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/AutumnTrace/hireflow-web/compare/v1.0.0...v1.1.0
