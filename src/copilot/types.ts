@@ -1,5 +1,7 @@
 // Response shapes of the HireFlow Copilot API (https://github.com/AutumnTrace/hireflow-copilot).
 
+import type { InterviewKind } from '../gql/graphql'
+
 export type CopilotEndpoint = 'ask' | 'agent'
 
 export interface CopilotSource {
@@ -30,7 +32,14 @@ export interface ScheduleInterviewProposal {
   id: string
   kind: 'schedule_interview'
   summary: string
-  params: Record<string, unknown>
+  params: {
+    application_id: string
+    kind: InterviewKind
+    /** ISO 8601, UTC */
+    scheduled_at: string
+    duration_minutes: number
+    interviewer: string
+  }
   confirm_url: string
 }
 

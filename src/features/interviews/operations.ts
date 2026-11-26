@@ -41,3 +41,30 @@ export const AgendaQuery = graphql(`
     }
   }
 `)
+
+export const ScheduleInterviewMutation = graphql(`
+  mutation ScheduleInterview($input: ScheduleInterviewInput!) {
+    scheduleInterview(input: $input) {
+      interview {
+        id
+        kind
+        scheduledAt
+        durationMinutes
+        interviewer
+        application {
+          id
+          candidate {
+            id
+            fullName
+          }
+        }
+      }
+      errors {
+        __typename
+        ... on Error {
+          message
+        }
+      }
+    }
+  }
+`)

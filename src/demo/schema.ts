@@ -159,6 +159,47 @@ export function createDemoSchema(store: DemoStore, pubsub: PubSub = createPubSub
         })
         return { jobApplication: application, errors: null }
       },
+
+      // Same checks, in the same order, as HireFlow.Domain.Interviews.Interview.Schedule.
+      scheduleInterview: (
+        _: unknown,
+        { input }: { input: { applicationId: string; kind: InterviewRow['kind']; scheduledAt: string; durationMinutes: number; interviewer: string } },
+      ) => {
+        const application = byId(store.applications, input.applicationId)
+        if (!application) {
+          return {
+            interview: null,
+            errors: [{ __typename: 'EntityNotFoundError', message: `JobApplication '${input.applicationId}' was not found.`, entity: 'JobApplication', entityId: input.applicationId }],
+          }
+        }
+        if (!ACTIVE_STAGES.includes(application.stage)) {
+          return {
+            interview: null,
+            errors: [{ __typename: 'ApplicationClosedError', message: `Application is already closed (${LABEL(application.stage)}).`, applicationId: application.id, stage: application.stage }],
+          }
+        }
+        const invalid = (field: string, message: string) => ({ interview: null, errors: [{ __typename: 'DomainValidationError', message, field }] })
+        if (input.durationMinutes < 15 || input.durationMinutes > 480) {
+          return invalid('durationMinutes', 'Interviews must last between 15 minutes and 8 hours.')
+        }
+        const interviewer = input.interviewer.trim()
+        if (!interviewer) return invalid('interviewer', "'interviewer' is required.")
+        if (interviewer.length > 120) return invalid('interviewer', "'interviewer' must be at most 120 characters.")
+
+        const interview: InterviewRow = {
+          id: store.nextId(),
+          applicationId: application.id,
+          kind: input.kind,
+          scheduledAt: new Date(input.scheduledAt).toISOString(),
+          durationMinutes: input.durationMinutes,
+          interviewer,
+          rating: null,
+          feedback: null,
+          feedbackSubmittedAt: null,
+        }
+        store.interviews.push(interview)
+        return { interview, errors: null }
+      },
     },
 
     Subscription: {

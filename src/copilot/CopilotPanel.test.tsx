@@ -4,8 +4,10 @@ import { MemoryRouter } from 'react-router'
 import type { ReactNode } from 'react'
 import { ApiProvider, useApi } from '../api/ApiProvider'
 import { Toaster } from '../components/Toaster'
+import { InterviewsPage } from '../features/interviews/InterviewsPage'
 import { CopilotPanel } from './CopilotPanel'
 import { askCopilot } from './client'
+import type { ScheduleInterviewProposal } from './types'
 
 // Live mode signs in to HireFlow first; here it gets a token and the in-browser engine instead.
 vi.mock('../api/auth', () => ({ fetchDevToken: async () => 'test-token' }))
@@ -142,5 +144,66 @@ describe('CopilotPanel in live mode', () => {
 
     expect(askCopilot).toHaveBeenCalledWith('http://copilot.test', 'agent', 'Who knows Kafka?', expect.any(AbortSignal))
     expect(await screen.findByRole('alert')).toHaveTextContent('Rate limit: 5 requests per minute. Try again in 42s.')
+  })
+})
+
+describe('CopilotPanel interview proposals', () => {
+  const ANA_SENIOR_NET = '00000000-0000-4000-8000-000000000020' // Interview stage
+  const NICOLETA_SENIOR_NET = '00000000-0000-4000-8000-00000000002b' // Rejected
+  const at = new Date(Date.now() + 2 * 86_400_000)
+  at.setUTCHours(10, 0, 0, 0)
+
+  function proposal(id: string, applicationId: string): ScheduleInterviewProposal {
+    return {
+      id,
+      kind: 'schedule_interview',
+      summary: `Schedule a 60-minute technical with Sorin Lupu at ${at.toISOString()}`,
+      params: { application_id: applicationId, kind: 'TECHNICAL', scheduled_at: at.toISOString(), duration_minutes: 60, interviewer: 'Sorin Lupu' },
+      confirm_url: `/v1/actions/${id}/confirm`,
+    }
+  }
+
+  function renderWithAgenda() {
+    return render(
+      <ApiProvider initialSettings={{ mode: 'live', apiUrl: '', copilotUrl: 'http://copilot.test' }}>
+        <Toaster>
+          <MemoryRouter>
+            <WhenConnected>
+              <InterviewsPage />
+              <CopilotPanel onClose={() => {}} />
+            </WhenConnected>
+          </MemoryRouter>
+        </Toaster>
+      </ApiProvider>,
+    )
+  }
+
+  it('schedules the interview, which then shows on the agenda', async () => {
+    vi.mocked(askCopilot).mockResolvedValueOnce({
+      answer: 'I proposed two technical interviews.',
+      sources: [],
+      usage: { input_tokens: 0, output_tokens: 0, cache_read_tokens: 0, cost_usd: 0 },
+      proposed_actions: [proposal('p1', ANA_SENIOR_NET), proposal('p2', NICOLETA_SENIOR_NET)],
+    })
+    const user = userEvent.setup()
+    renderWithAgenda()
+
+    const agenda = await screen.findByRole('region', { name: /Agenda/ })
+    expect(within(agenda).queryByText(/Sorin Lupu/)).not.toBeInTheDocument()
+
+    await user.type(screen.getByRole('textbox', { name: 'Ask the copilot' }), 'Book technicals with Sorin')
+    await user.click(screen.getByRole('button', { name: 'Ask' }))
+    const [forAna, forNicoleta] = await screen.findAllByRole('button', { name: 'Apply' })
+
+    await user.click(forAna)
+    expect(await screen.findByText('✓ Applied')).toBeInTheDocument()
+    expect(screen.getByText('Interview scheduled')).toBeInTheDocument()
+    await waitFor(() => expect(within(agenda).getByText(/Sorin Lupu/)).toBeInTheDocument())
+    expect(within(agenda).getByText(/Sorin Lupu/).closest('li')).toHaveTextContent('Technical with Ana Popescu')
+
+    // The API's own error, shown next to the proposal; nothing is scheduled.
+    await user.click(forNicoleta)
+    expect(await screen.findByRole('alert')).toHaveTextContent('Application is already closed (Rejected).')
+    expect(within(agenda).getAllByText(/Sorin Lupu/)).toHaveLength(1)
   })
 })
